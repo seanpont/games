@@ -110,9 +110,10 @@ def game_host():
     size = int(raw_input("Board size: "))
     goal = int(raw_input("How many in a row to win? "))
     p1 = raw_input("Player 1 token: ").strip()[0]
+    port = int(raw_input("Enter port number: ").strip())
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (socket.gethostbyname(socket.gethostname()), 8000)
+    server_address = (socket.gethostbyname(socket.gethostname()), port)
     print 'starting up on %s port %s' % server_address
     sock.bind(server_address)
     sock.listen(5)
@@ -138,8 +139,10 @@ def game_host():
 
 def game_client():
     ip_addr = raw_input("Enter host ip: ").strip()
+    port = int(raw_input("Enter host port: ").strip())
     p2 = raw_input("Enter your token: ").strip()[0]
-    connection = socket.create_connection((ip_addr, 8000))
+
+    connection = socket.create_connection((ip_addr, port))
     try:
         connection.sendall(p2)
         data = connection.recv(256).strip()
