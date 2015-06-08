@@ -92,8 +92,8 @@ class Game(object):
 
 
 def game_console():
-    size = raw_input("Board size: ")
-    goal = raw_input("How many in a row to win? ")
+    size = int(raw_input("Board size: "))
+    goal = int(raw_input("How many in a row to win? "))
     p1 = raw_input("Player 1 token: ").strip()[0]
     p2 = raw_input("Player 2 token: ").strip()[0]
 
