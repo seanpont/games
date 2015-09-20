@@ -1,13 +1,13 @@
 __author__ = 'tron'
 
 from HTMLParser import HTMLParser
-
+from urllib2 import urlopen
 from collections import namedtuple
 
 DogBreed = namedtuple('DogBreed', 'name origin group image_url')
 
 # create a subclass and override the handler methods
-class DogBreedHTMLParser(HTMLParser):
+class DogBreedDownloader(HTMLParser):
 
     def __init__(self):
         HTMLParser.__init__(self)
@@ -64,11 +64,11 @@ class DogBreedHTMLParser(HTMLParser):
                 DogBreed(self.name, self.origin, self.group, self.image_url))
             self.td_count = -1
 
-
-dog_breeds_url = "https://en.wikipedia.org/wiki/List_of_dog_breeds"
-from urllib2 import urlopen
-dog_breeds_html = urlopen(dog_breeds_url).read()
-parser = DogBreedHTMLParser()
-parser.feed(dog_breeds_html)
-print parser.breeds[0:10]
-print len(parser.breeds)
+    def download_breeds(self):
+        """
+        :return: list of DogBreeds from wikipedia
+        """
+        dog_breeds_url = "https://en.wikipedia.org/wiki/List_of_dog_breeds"
+        dog_breeds_html = urlopen(dog_breeds_url).read()
+        self.feed(dog_breeds_html)
+        return self.breeds
