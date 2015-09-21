@@ -1,23 +1,16 @@
-
-
-
 from dog_breed_downloader import DogBreedDownloader, DogBreed
 
 breeds = DogBreedDownloader().download_breeds()
 
-desired_size = int(raw_input("Enter house size: 0, 1, or 2: "))
-allergies = raw_input("Do you have allergies? y or n: ")
-desired_shedding = True
-if allergies == 'y':
-    desired_shedding = False
+for breed in breeds[0:10]:
+    print breed
 
-assert type(desired_size) == int
-assert type(desired_shedding) == bool
+"""
+Assignment 1: How many of each kind of dog are there?
+Use a map to count the number of breeds in each group
 
-for breed in breeds_with_attributes:
-    if breed[1] == desired_size and breed[2] == desired_shedding:
-        print breed[0]
-
+Assignment 2:
+"""
 
 
 
