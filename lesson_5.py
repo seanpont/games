@@ -41,9 +41,12 @@ def play_hangman(max_num_guesses):
         print '\n-----------------------'
         print 'You have %d guesses left' % (max_num_guesses - num_guesses)
         print 'Available letters: %s' % possible_letters
-        letter = raw_input("Please guess a letter: ")[0]
-        if letter not in possible_letters:
+        letter = raw_input("Please guess a letter: ")
+        if not letter or len(letter) != 1:
             print 'Invalid guess'
+            continue
+        if letter in letters:
+            print 'You already guessed that'
             continue
         letters += letter
         possible_letters = possible_letters.replace(letter, '')
