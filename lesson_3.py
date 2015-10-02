@@ -1,3 +1,49 @@
+"""
+Objects
+  Everything is an object
+  Literals -- indivisible objects
+    int
+    float
+    boolean
+    None
+    str
+  type()
+Expressions
+  operands and operators
+  3+2
+  3/2
+  3.0/2.0
+  overloading
+Programs
+  Sequence of expressions
+  assignment
+    x = 3
+    x = x*x
+  Straight line programs
+  Conditionals - branching
+  Program 1
+    indentation affects semantics
+  Complexity theory
+    how long does a program run for?
+    Straight line?
+    Branching?
+    Consider more useful program
+    Should depend on size of data input
+    We require a loop
+  Looping Construct
+    Turing complete!
+    Program 2
+    For what values will this loop terminate?
+      positive
+      negative
+      0
+    decrementing loop
+    How can we modify this program so taht it finds the root of arbitrary numbers?
+    Concept of approximation
+    find y such that y*y = x +/- epsilon
+    Program 3
+"""
+
 
 # Program 1
 # x = int(raw_input('input number: '))
@@ -54,15 +100,6 @@ while abs(ans**2 - x) >= epsilon and ans <= max(x, 1):
     ans = (high + low)/2.0
 print 'numGuesses =', numGuesses
 print ans, 'is close to square root of', x
-
-
-
-
-
-
-
-
-
 
 
 

@@ -97,7 +97,7 @@ def game_console():
     p1 = raw_input("Player 1 token: ").strip()[0]
     p2 = raw_input("Player 2 token: ").strip()[0]
 
-    game = Game(goal, size, p1, p2)
+    game = Game(size, goal, p1, p2)
     print 'enter your move by typing the row and column, like this: 5e'
     while not game.winner:
         print game
