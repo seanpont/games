@@ -6,13 +6,12 @@ from collections import namedtuple
 
 DogBreed = namedtuple('DogBreed', 'name origin group image_url')
 
-# create a subclass and override the handler methods
+
 class DogBreedDownloader(HTMLParser):
 
     def __init__(self):
         HTMLParser.__init__(self)
         self.breeds = []
-        self.consume_tags = ['table', 'tr']
         self.name = ''
         self.origin = ''
         self.group = ''
@@ -79,4 +78,4 @@ class DogBreedDownloader(HTMLParser):
         dog_breeds_html = urlopen(dog_breeds_url).read()
         print 'Parsing html...'
         self.feed(dog_breeds_html)
-        return self.breeds
+        return self.breeds[1:]
