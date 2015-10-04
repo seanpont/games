@@ -30,6 +30,16 @@ class TestCases(unittest.TestCase):
         self.assertEqual(all_letters_in_word('apple', 'aelp'), True)
         self.assertEqual(all_letters_in_word('apple', 'elpj'), False)
 
+    def test_is_palindrome(self):
+        self.assertTrue(is_palindrome('race car'))
+        self.assertTrue(is_palindrome('A man, a plan, a canal: Panama!'))
+        self.assertFalse(is_palindrome('Sean Pont'))
+
+    def test_fib(self):
+        self.assertEqual(fib(0), 1)
+        self.assertEqual(fib(1), 1)
+        self.assertEqual(fib(10), 89)
+
 
 if __name__ == '__main__':
     unittest.main()
