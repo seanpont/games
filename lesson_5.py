@@ -23,6 +23,13 @@ def count_occurrences(items, target):
     Return how many instances of target are in the list of items.
     items may be any iterable
     a list of numbers like [1,2,3] or a string like 'abc'
+
+    >>> count_occurrences('noodle', 'o')
+    2
+    >>> count_occurrences('alabama', 'a')
+    4
+    >>> count_occurrences([1, 2, 3, 4, 3, 2, 1], 3)
+    2
     """
     pass
 
@@ -31,6 +38,13 @@ def find_most_common_item(items):
     """
     Return the most common item among a set of items. For example:
     In the event of a tie, return whichever occurs first in the list.
+
+    >>> find_most_common_item('alabama')
+    'a'
+    >>> find_most_common_item([1, 2, 3, 1, 2, 1])
+    '1'
+    >>> find_most_common_item('abcab')
+    'a'
     """
     pass
 
@@ -39,6 +53,13 @@ def find_first_item_that_occurs_once(items):
     """
     Return the item that only occurrs once.
     If there is none, return None
+
+    >>> find_first_item_that_occurs_once('aabbc')
+    'c'
+    >>> find_first_item_that_occurs_once([1, 2, 3, 4, 3, 2, 1, 5])
+    4
+    >>> find_first_item_that_occurs_once('abracadabra')
+    'c'
     """
     pass
 
@@ -49,6 +70,11 @@ def is_anagram(word1, word2):
     An anagram is a word or phrase that uses all of the letters of another word or phrase
     in a different order.
     For example: 'silent' and 'listen' or 'able' and 'bale'
+
+    >>> is_anagram('silent', 'listen')
+    True
+    >>> is_anagram('foobar', 'foofoo')
+    False
     """
     pass
 
@@ -71,6 +97,13 @@ def word_with_only_letters(word, letters):
     Return the word, but replace all the letters that are not 
     in 'letters' with an underscore '_'
     For example, word_with_only_letters('apple', 'pl') == '_ppl_'
+
+    >>> word_with_only_letters('apple', '')
+    '_____'
+    >>> word_with_only_letters('apple', 'pl')
+    '_ppl_'
+    >>> word_with_only_letters('apple', 'aelp')
+    'apple'
     """
     pass
 
@@ -79,6 +112,11 @@ def all_letters_in_word(word, letters):
     """
     Return true if all the letters in word are in 'letters'.
     For example, all_letters_in_word('apple', 'aelp') == True
+
+    >>> all_letters_in_word('apple', 'aelp')
+    True
+    >>> all_letters_in_word('apple', 'elpj')
+    False
     """
     pass
 
@@ -182,26 +220,31 @@ def _is_palindrome(s):
     return s[0] == s[-1] and is_palindrome(s[1:-1])
 
 
-"""
-The Fibonacci sequence is the most famous recursively-defined number sequence.
-"Breed like rabbits"
-fib(n) = fib(n-1) + fib(n-2)
-Base case: fib(0) and fib(1) = 1
-What happens as n grows?
-How can we make it faster
-"""
-
-
 def fib(n):
-    if n <= 1:
-        return 1
-    return fib(n-1) + fib(n-2)
+    """
+    The Fibonacci sequence is the most famous recursively-defined
+    number sequence.
+    fib(n) = fib(n-1) + fib(n-2)
+    Base case: fib(0) == fib(1) == 1
+    What happens as n grows?
+    How can we make it faster
+
+    >>> fib(0)
+    1
+    >>> fib(1)
+    1
+    >>> fib(2)
+    2
+    >>> fib(5)
+    8
+    >>> fib(10)
+    89
+
+    """
+    pass
 
 
+if __name__ == "__main__":
+    import doctest
 
-
-
-
-
-
-
+    doctest.testmod()
