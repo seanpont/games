@@ -115,7 +115,11 @@ def all_letters_in_word(word, letters):
 
     >>> all_letters_in_word('apple', 'aelp')
     True
-    >>> all_letters_in_word('apple', 'elpj')
+    >>> all_letters_in_word('apple', 'aelpfjt')
+    True
+    >>> all_letters_in_word('apple', 'elp')
+    False
+    >>> all_letters_in_word('apple', 'qwerty')
     False
     """
     pass
@@ -151,10 +155,6 @@ def play_hangman(num_guesses):
     print "Sorry, the word was %s" % word
 
 
-# if __name__ == '__main__':
-#     play_hangman(15)
-
-
 """
 RECURSION
 
@@ -183,24 +183,19 @@ def simple_exp(b, n):
     return b * simple_exp(b, n - 1) * b
 
 
-"""
-Towers of Hanoi
-Three rods and a bunch of disks of decreasing size.
-Can move one disk at a time. Can never cover a smaller disk
-Goal: move all disks from one rod to the other.
-"""
-
-
 def hanoi(n, from_stack, to_stack, spare_stack):
+    """
+    Towers of Hanoi
+    Three rods and a bunch of disks of decreasing size.
+    Can move one disk at a time. Can never cover a smaller disk
+    Goal: move all disks from one rod to the other.
+    """
     if n == 1:
         print 'move from', from_stack, 'to', to_stack
     else:
         hanoi(n - 1, from_stack, spare_stack, to_stack)
         hanoi(1, from_stack, to_stack, spare_stack)
         hanoi(n - 1, spare_stack, to_stack, from_stack)
-
-
-# hanoi(3, 'f', 't', 's')
 
 
 """
@@ -246,5 +241,7 @@ def fib(n):
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()
+    # play_hangman(15)
+    # hanoi(3, 'f', 't', 's')
+
