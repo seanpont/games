@@ -31,7 +31,26 @@ def count_occurrences(items, target):
     >>> count_occurrences([1, 2, 3, 4, 3, 2, 1], 3)
     2
     """
-    pass
+    count = 0
+    for item in items:
+        if item == target:
+            count += 1
+    return count
+
+
+def find_key_with_highest_value(d):
+    """
+    Returns the key with the highest value
+    >>> find_key_with_highest_value({'a': 1, 'b': 4, 'c': 2})
+    'b'
+    """
+    # return max(d.items(), key=lambda x: x[1])[0]
+    items = d.items()
+    max_item = items[0]
+    for item in items:
+        if item[1] > max_item[1]:
+            max_item = item
+    return max_item[0]
 
 
 def find_most_common_item(items):
@@ -42,11 +61,14 @@ def find_most_common_item(items):
     >>> find_most_common_item('alabama')
     'a'
     >>> find_most_common_item([1, 2, 3, 1, 2, 1])
-    '1'
+    1
     >>> find_most_common_item('abcab')
     'a'
     """
-    pass
+    letter_count = {}
+    for item in items:
+        letter_count[item] = letter_count.get(item, 0) + 1
+    return find_key_with_highest_value(letter_count)
 
 
 def find_first_item_that_occurs_once(items):
@@ -64,10 +86,18 @@ def find_first_item_that_occurs_once(items):
     pass
 
 
+def map_count(items):
+    count = {}
+    for item in items:
+        count[item] = count.get(item, 0) + 1
+    return count
+
+
 def is_anagram(word1, word2):
     """
     Return true if word1 is an anagram of word2.
-    An anagram is a word or phrase that uses all of the letters of another word or phrase
+    An anagram is a word or phrase that uses all of the letters of another word
+    or phrase
     in a different order.
     For example: 'silent' and 'listen' or 'able' and 'bale'
 
@@ -75,9 +105,12 @@ def is_anagram(word1, word2):
     True
     >>> is_anagram('foobar', 'foofoo')
     False
+    >>> is_anagram('alexia', 'exalia')
+    True
+    >>> is_anagram('cedric', 'criced')
+    True
     """
-    pass
-
+    return map_count(word1) == map_count(word2)
 
 """
 Below, I've written a quick implementation of the game Hangman.
@@ -92,6 +125,9 @@ def get_random_word():
             [word.strip() for word in word_file if word.islower()])
 
 
+def char_if_in_letters(character, letters):
+    return character if character in letters else '_'
+
 def word_with_only_letters(word, letters):
     """
     Return the word, but replace all the letters that are not 
@@ -105,7 +141,10 @@ def word_with_only_letters(word, letters):
     >>> word_with_only_letters('apple', 'aelp')
     'apple'
     """
-    pass
+    result = ''
+    for letter in word:
+        result += char_if_in_letters(letter, letters)
+    return result
 
 
 def all_letters_in_word(word, letters):
@@ -122,7 +161,10 @@ def all_letters_in_word(word, letters):
     >>> all_letters_in_word('apple', 'qwerty')
     False
     """
-    pass
+    for letter in word:
+        if letter not in letters:
+            return False
+    return True
 
 
 def play_hangman(num_guesses):
@@ -152,7 +194,7 @@ def play_hangman(num_guesses):
         if all_letters_in_word(word, letters):
             print "You won!"
             return
-    print "Sorry, the word was %s" % word
+    print "Sorry, the word was " + word
 
 
 """
@@ -241,7 +283,7 @@ def fib(n):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
-    # play_hangman(15)
+    # doctest.testmod()
+    play_hangman(15)
     # hanoi(3, 'f', 't', 's')
 
