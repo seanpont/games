@@ -9,13 +9,20 @@ Review:
     Mutability and immutability
 Today:
     Practice using strings, tuples, lists, and dicts to solve problems
-    Introduce recursion
 
 To practice with lists, conditionals, and loops, we'll build the game Hangman
 """
 
 import random
 import string
+from test_utils import assert_equal
+import functional as f
+
+
+def map_count(xs):
+    return reduce(lambda m, x: f.set_on(m, x, m.get(x, 0) + 1), xs, {})
+
+assert_equal({'a': 2, 'b': 1}, map_count('aba'))
 
 
 def count_occurrences(items, target):
@@ -23,74 +30,55 @@ def count_occurrences(items, target):
     Return how many instances of target are in the list of items.
     items may be any iterable
     a list of numbers like [1,2,3] or a string like 'abc'
-
-    >>> count_occurrences('noodle', 'o')
-    2
-    >>> count_occurrences('alabama', 'a')
-    4
-    >>> count_occurrences([1, 2, 3, 4, 3, 2, 1], 3)
-    2
+    :param target: The item that we would like to count
+    :param items: A collection of items
     """
-    count = 0
-    for item in items:
-        if item == target:
-            count += 1
-    return count
+    return map_count(items)[target]
+
+# Tests for count_occurrences
+assert_equal(2, count_occurrences('noodle', 'o'))
+assert_equal(4, count_occurrences('alabama', 'a'))
+assert_equal(2, count_occurrences([1, 2, 3, 4, 3, 2, 1], 3))
 
 
-def find_key_with_highest_value(d):
+def find_keys_with_highest_value(a_map):
     """
-    Returns the key with the highest value
-    >>> find_key_with_highest_value({'a': 1, 'b': 4, 'c': 2})
-    'b'
+    Takes a map and returns the keys with the highest values
+    :param a_map: a map where the values are comparable
+    :return a list of the keys with the highest values
     """
-    # return max(d.items(), key=lambda x: x[1])[0]
-    items = d.items()
-    max_item = items[0]
-    for item in items:
-        if item[1] > max_item[1]:
-            max_item = item
-    return max_item[0]
+    return f.flip_map(a_map)[max(a_map.values())]
+
+assert_equal(['b'], find_keys_with_highest_value({'a': 1, 'b': 4, 'c': 2}))
+assert_equal(['a', 'c'], find_keys_with_highest_value({'a': 4, 'b': 2, 'c': 4}))
 
 
 def find_most_common_item(items):
     """
     Return the most common item among a set of items. For example:
     In the event of a tie, return whichever occurs first in the list.
-
-    >>> find_most_common_item('alabama')
-    'a'
-    >>> find_most_common_item([1, 2, 3, 1, 2, 1])
-    1
-    >>> find_most_common_item('abcab')
-    'a'
+    :param items:
     """
-    letter_count = {}
-    for item in items:
-        letter_count[item] = letter_count.get(item, 0) + 1
-    return find_key_with_highest_value(letter_count)
+    return find_keys_with_highest_value(map_count(items))
+
+assert_equal(['a'], find_most_common_item('alabama'))
+assert_equal([1], find_most_common_item([1, 2, 3, 1, 2, 1]))
+assert_equal(['a', 'b'], find_most_common_item('abcab'))
 
 
-def find_first_item_that_occurs_once(items):
+def find_items_that_occur_once(xs):
     """
-    Return the item that only occurrs once.
+    Return the item that only occurs only once.
     If there is none, return None
-
-    >>> find_first_item_that_occurs_once('aabbc')
-    'c'
-    >>> find_first_item_that_occurs_once([1, 2, 3, 4, 3, 2, 1, 5])
-    4
-    >>> find_first_item_that_occurs_once('abracadabra')
-    'c'
+    :param xs: A list of items
+    :return: the items that occur once
     """
-    pass
+    return f.flip_map(map_count(xs)).get(1, [])
 
-
-def map_count(items):
-    count = {}
-    for item in items:
-        count[item] = count.get(item, 0) + 1
-    return count
+assert_equal(['c'], find_items_that_occur_once('aabbc'))
+assert_equal([4, 5], find_items_that_occur_once([1, 2, 3, 4, 3, 2, 1, 5]))
+assert_equal(['c', 'd'], find_items_that_occur_once('abracadabra'))
+assert_equal([], find_items_that_occur_once('aabbcc'))
 
 
 def is_anagram(word1, word2):
@@ -100,23 +88,16 @@ def is_anagram(word1, word2):
     or phrase
     in a different order.
     For example: 'silent' and 'listen' or 'able' and 'bale'
-
-    >>> is_anagram('silent', 'listen')
-    True
-    >>> is_anagram('foobar', 'foofoo')
-    False
-    >>> is_anagram('alexia', 'exalia')
-    True
-    >>> is_anagram('cedric', 'criced')
-    True
     """
     return map_count(word1) == map_count(word2)
 
-"""
-Below, I've written a quick implementation of the game Hangman.
-It will only work correctly if we implement the following functions correctly!
-"""
+assert_equal(True, is_anagram('silent', 'listen'))
+assert_equal(False, is_anagram('foobar', 'foofoo'))
+assert_equal(True, is_anagram('alexia', 'exalia'))
+assert_equal(True, is_anagram('cedric', 'criced'))
 
+
+# ===== HANGMAN ================================================================
 
 def get_random_word():
     """Returns a random word from the built-in dictionary"""
@@ -128,43 +109,37 @@ def get_random_word():
 def char_if_in_letters(character, letters):
     return character if character in letters else '_'
 
+
 def word_with_only_letters(word, letters):
     """
-    Return the word, but replace all the letters that are not 
+    Return the word, but replace all the letters that are not
     in 'letters' with an underscore '_'
     For example, word_with_only_letters('apple', 'pl') == '_ppl_'
-
-    >>> word_with_only_letters('apple', '')
-    '_____'
-    >>> word_with_only_letters('apple', 'pl')
-    '_ppl_'
-    >>> word_with_only_letters('apple', 'aelp')
-    'apple'
     """
     result = ''
     for letter in word:
         result += char_if_in_letters(letter, letters)
     return result
 
+assert_equal('_____', word_with_only_letters('apple', ''))
+assert_equal('_ppl_', word_with_only_letters('apple', 'pl'))
+assert_equal('apple', word_with_only_letters('apple', 'aelp'))
+
 
 def all_letters_in_word(word, letters):
     """
     Return true if all the letters in word are in 'letters'.
     For example, all_letters_in_word('apple', 'aelp') == True
-
-    >>> all_letters_in_word('apple', 'aelp')
-    True
-    >>> all_letters_in_word('apple', 'aelpfjt')
-    True
-    >>> all_letters_in_word('apple', 'elp')
-    False
-    >>> all_letters_in_word('apple', 'qwerty')
-    False
     """
     for letter in word:
         if letter not in letters:
             return False
     return True
+
+assert_equal(True, all_letters_in_word('apple', 'aelp'))
+assert_equal(True, all_letters_in_word('apple', 'aelpfjt'))
+assert_equal(False, all_letters_in_word('apple', 'elp'))
+assert_equal(False, all_letters_in_word('apple', 'qwerty'))
 
 
 def play_hangman(num_guesses):
@@ -195,95 +170,4 @@ def play_hangman(num_guesses):
             print "You won!"
             return
     print "Sorry, the word was " + word
-
-
-"""
-RECURSION
-
-Definition:
-The repeated application of a recursive procedure or definition.
-See: Recursion
-
-Key idea: divide and conquer
-Recursion is:
-    Way of defining a problem
-    Way of solving a problem
-    Example:
-        Definition of US Citizen
-Two parts:
-    Base Case
-    Inductive case
-Examples!
-Build exponentiation, ie x^n
-    b^n = b^(n-1) * b if n > 0, if n==0 1
-"""
-
-
-def simple_exp(b, n):
-    if n == 0:
-        return 1
-    return b * simple_exp(b, n - 1) * b
-
-
-def hanoi(n, from_stack, to_stack, spare_stack):
-    """
-    Towers of Hanoi
-    Three rods and a bunch of disks of decreasing size.
-    Can move one disk at a time. Can never cover a smaller disk
-    Goal: move all disks from one rod to the other.
-    """
-    if n == 1:
-        print 'move from', from_stack, 'to', to_stack
-    else:
-        hanoi(n - 1, from_stack, spare_stack, to_stack)
-        hanoi(1, from_stack, to_stack, spare_stack)
-        hanoi(n - 1, spare_stack, to_stack, from_stack)
-
-
-"""
-A palindrome may be defined recursively as well.
-Add print statements to watch it in action!
-"""
-
-
-def is_palindrome(s):
-    s = filter(lambda x: x in string.lowercase, s.lower())
-    return _is_palindrome(s)
-
-
-def _is_palindrome(s):
-    if len(s) <= 1:  # Note: two base cases!
-        return True
-    return s[0] == s[-1] and is_palindrome(s[1:-1])
-
-
-def fib(n):
-    """
-    The Fibonacci sequence is the most famous recursively-defined
-    number sequence.
-    fib(n) = fib(n-1) + fib(n-2)
-    Base case: fib(0) == fib(1) == 1
-    What happens as n grows?
-    How can we make it faster
-
-    >>> fib(0)
-    1
-    >>> fib(1)
-    1
-    >>> fib(2)
-    2
-    >>> fib(5)
-    8
-    >>> fib(10)
-    89
-
-    """
-    pass
-
-
-if __name__ == "__main__":
-    import doctest
-    # doctest.testmod()
-    play_hangman(15)
-    # hanoi(3, 'f', 't', 's')
 
