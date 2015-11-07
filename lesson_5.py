@@ -20,6 +20,10 @@ import functional as f
 
 
 def map_count(xs):
+    """
+    :param xs: a list of items
+    :return: a map of item to number of times it occurs in the list
+    """
     return reduce(lambda m, x: f.set_on(m, x, m.get(x, 0) + 1), xs, {})
 
 assert_equal({'a': 2, 'b': 1}, map_count('aba'))

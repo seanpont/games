@@ -3,31 +3,17 @@ __author__ = 'tron'
 from HTMLParser import HTMLParser
 from urllib2 import urlopen
 from collections import namedtuple
-import functional as f
 
 
-attrs = [('href', '/wiki/Affenpinscher'), ('title', 'Affenpinscher')]
-
-def map_attrs(attrs):
-    """
-    :param attrs: tag attrs as list of key/value pairs
-    :return: a map of key: value
-    """
-    return reduce(lambda m, kv: f.set_on(m, kv[0], kv[1]), attrs, {})
-
-print map_attrs(attrs)
+DogBreed = namedtuple('DogBreed', 'name origin group image_url')
 
 
-DogBreed = namedtuple('DogBreed', 'name url origin group image_url')
-
-
-class DogBreedDownloader(HTMLParser):
+class DogBreedsDownloader(HTMLParser):
 
     def __init__(self):
         HTMLParser.__init__(self)
         self.breeds = []
         self.name = ''
-        self.url = ''
         self.origin = ''
         self.group = ''
         self.image_url = ''
@@ -46,9 +32,6 @@ class DogBreedDownloader(HTMLParser):
 
         if self.td_count == 0 and tag == 'a':
             self.in_name_url = True
-            attr_map = map_attrs(attrs)
-            if 'href' in attr_map:
-                self.url = "https://en.wikipedia.org" + attr_map['href']
         elif self.td_count == 1 and tag == 'a':
             self.in_origin_url = True
         elif self.td_count == 8:
@@ -78,16 +61,17 @@ class DogBreedDownloader(HTMLParser):
         elif tag == 'tr':
             self.breeds.append(
                 DogBreed(self.name.strip(),
-                         self.url.strip(),
                          self.origin.strip(),
                          self.group.strip(),
                          self.image_url.strip()))
             self.td_count = -1
             self.name = ''
-            self.url = ''
             self.origin = ''
             self.group = ''
             self.image_url = ''
+
+    def error(self, message):
+        pass
 
     def download_breeds(self):
         """

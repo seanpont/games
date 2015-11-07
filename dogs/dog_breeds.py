@@ -1,10 +1,10 @@
 import SimpleHTTPServer
 import SocketServer
 import time
-from dog_breed_downloader import DogBreedDownloader
+from dog_breed_downloader import DogBreedsDownloader
 
 start = time.time()
-breeds = DogBreedDownloader().download_breeds()
+breeds = DogBreedsDownloader().download_breeds()
 duration = time.time() - start
 print "Downloaded %d breeds in %s seconds" % (len(breeds), duration)
 for breed in breeds[0:10]:
