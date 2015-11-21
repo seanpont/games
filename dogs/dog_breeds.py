@@ -1,3 +1,4 @@
+import BaseHTTPServer
 import SimpleHTTPServer
 import SocketServer
 import time
@@ -10,19 +11,18 @@ print "Downloaded %d breeds in %s seconds" % (len(breeds), duration)
 for breed in breeds[0:10]:
     print breed
 
-
-# PORT = 8000
-#
-# Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-#
-# httpd = SocketServer.TCPServer(("", PORT), Handler)
-#
-# print "serving at port", PORT
-# httpd.serve_forever()
+class DogBreedRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    pass
 
 
+def run(server_class=BaseHTTPServer.HTTPServer,
+        handler_class=DogBreedRequestHandler):
+    server_address = ('', 8000)
+    httpd = server_class(server_address, handler_class)
+    httpd.serve_forever()
 
 
+run()
 
 
 

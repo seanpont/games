@@ -100,6 +100,7 @@ def game_console():
     game = Game(size, goal, p1, p2)
     print 'enter your move by typing the row and column, like this: 5e'
     while not game.winner:
+        print "\x1b[2J\x1b[H"
         print game
         move = raw_input("%s : " % game.turn)
         game.play_turn(move)
