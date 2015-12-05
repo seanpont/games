@@ -1,4 +1,3 @@
-
 def append(xs, x):
     """
     :param xs: a list of items
@@ -31,3 +30,18 @@ def flip_map(m):
 
 
 assert flip_map({'a': 1, 'b': 2, 'c': 1}) == {1: ['a', 'c'], 2: ['b']}
+
+
+def memoize(fn):
+    """Annotation for single-argument methods that memoizes results
+    :param fn: The single-argument function to memoize
+    """
+    memo = {}
+
+    def memoized(x):
+        if x in memo:
+            return memo[x]
+        memo[x] = y = fn(x)
+        return y
+
+    return memoized
