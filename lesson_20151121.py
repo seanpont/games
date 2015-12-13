@@ -57,6 +57,7 @@ Two parts:
     Inductive case
 """
 
+step_count = [0]
 
 def hanoi(n, from_stack, to_stack, spare_stack):
     """
@@ -71,10 +72,14 @@ def hanoi(n, from_stack, to_stack, spare_stack):
     """
     if n == 1:
         print 'move from', from_stack, 'to', to_stack
+        step_count[0] += 1
     else:
         hanoi(n - 1, from_stack, spare_stack, to_stack)
         hanoi(1, from_stack, to_stack, spare_stack)
         hanoi(n - 1, spare_stack, to_stack, from_stack)
+
+hanoi(5, 1, 2, 3)
+print step_count[0]
 
 
 def hanoi_count(n):
