@@ -19,6 +19,15 @@ def set_on(m, key, value):
     return m
 
 
+def add(s, val):
+    """
+    :param s: a set of items
+    :param val: the item to add
+    :return: the set
+    """
+    s.add(val)
+    return s
+
 def flip_map(m):
     """
     :param m: a map
@@ -45,3 +54,57 @@ def memoize(fn):
         return y
 
     return memoized
+
+
+def group_by(xs, key_fn, val_fn = lambda val: val):
+    """Return a map where the keys are fn(x) and value is a list of x
+
+    >>> group_by([(1, 2), (1, 3), (2, 3), (1, 4)], lambda x: x[0])
+    {1: [(1, 2), (1, 3), (1, 4)], 2: [(2, 3)]}
+
+    >>> group_by([(1, 2), (1, 3), (2, 3), (1, 4)], lambda x: x[0], lambda y: y[1])
+    {1: [2, 3, 4], 2: [3]}
+
+    """
+    def group(m, x):
+        key = key_fn(x)
+        return set_on(m, key, append(m.get(key, []), val_fn(x)))
+
+    return reduce(group, xs, {})
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+
+
+def count(target, xs):
+    """
+    :param target: item to count instanes of
+    :param xs: items
+    :return: number of instances of target in xs
+    >>> count(1, [1,2,1,3,1])
+    3
+    >>> count(1, range(4, 6))
+    0
+    """
+    return reduce(lambda c, x: c + 1 if x == target else c, xs, 0)
+
+
+def ifNone(x, fn):
+    """
+    return x if x is not None, else return value returned by function fn
+    :param x: the value, or None
+    :param fn: a function to call if x is None
+    :return: x or fn()
+    >>> ifNone(5, list)
+    5
+    >>> ifNone(None, list)
+    []
+    """
+    return x if x is not None else fn()
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

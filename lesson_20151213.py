@@ -1,11 +1,19 @@
 # TODO: write a function that returns the intersection of two lists
 # (all the elements that are common in both groups)
+def intersect(l1, l2):
+    print l1
+    print l2
 
+
+intersect([1,2,3], [2,3,4])
 
 # TODO: Write some tests for the intersect function
 
 
 # TODO: Rewrite the intersection function using list comprehension
+
+def intersect2(l1, l2):
+    return [x for x in l1 if x in l2]
 
 
 # TODO: Write a function that takes an integer n and uses List Comprehension to
@@ -31,6 +39,12 @@ NAMES = ['Alice', 'Bob', 'Cathy', 'Dan', 'Ed', 'Frank', 'Gary', 'Helen',
          'Irene', 'Jack', 'Kelly', 'Larry']
 AGES = [20, 21, 18, 18, 19, 20, 20, 19, 19, 19, 22, 19]
 
+names_ages = {name: age for name, age in zip(NAMES, AGES)}
+
+print names_ages
+print "Kelly is %s years old" % names_ages['Kelly']
+
+
 
 # TODO: write a function that will increment everyone's age by 1.
 
@@ -43,6 +57,19 @@ AGES = [20, 21, 18, 18, 19, 20, 20, 19, 19, 19, 22, 19]
 # buy items.
 # Explore inheritance by creating different types of stores
 # Explore composition by splitting the store up into an inventory, storefront...
+
+a = {1: 1, 2: 4}
+print a.get(1)
+print a.get(2)
+
+inventory = {}
+prices = {}
+
+inventory['shoes'] = 12
+print inventory
+prices['shoes'] = '$100'
+print prices
+
 
 
 
