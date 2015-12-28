@@ -1,5 +1,6 @@
 import random as r
 import functional as f
+from itertools import permutations
 
 
 def make_adjacency_list(from_nodes, to_nodes, num_edges):
@@ -14,30 +15,109 @@ class Graph(object):
         self.entry_nodes = entry_nodes
         self.node_flavors = node_flavors
 
+    def neighbors(self, node):
+        return self.adj_index.get(node, ())
+
+    def outdegree(self, node):
+        return len(self.neighbors(node))
+
     def dfs(self, fn, node, visited=None):
         """
-        Depth-first search
+        Apply function fn to each node using a depth-first search, starting at node
+        :param fn: The function to apply to each node
+        :param node: The node to start at
+        :param visited: nodes already visited, or None
         """
         # Add the node to the visited set
         visited = f.add(f.ifNone(visited, set), node)
         fn(node)
-        for neighbor in self.adj_index[node]:
+        for neighbor in self.neighbors(node):
             if neighbor not in visited:
                 self.dfs(fn, neighbor, visited)
 
 
-def label_library_nodes(program_graph, library_graph):
+def subgraph_isomorphism(graph1, node1, graph2, node2,
+                         flavor_comparator_fn=lambda f1, f2: 1 if f1 == f2 else 0,
+                         cache=None, visited=None):
+    """
+    Returns an integer [0, 1] that describes how isomorphic two
+    sub-graphs are. Does not return a boolean because this method can take into
+    account a certain amount of slop (mismatched flavors, inlined functions that
+    amount to missing nodes in one graph or the other.
+    :param graph1: Graph
+    :type graph1: Graph
+    :param node1: a node
+    :param graph2: Graph
+    :type graph2: Graph
+    :param node2: a node
+    :param flavor_comparator_fn: A function to compare two flavors.
+    Should return > 0 if they are reasonably close
+    :param cache: cheat sheet.
+    :type cache: dict
+    :param visited: a set of node pairs that have been visited
+    :type visited: set
+    :return: How isomorphic two subraphs rooted at node1 and node2 are,
+    based on their flavor
+    """
+    nodes = (node1, node2)
+
+    visited = f.ifNone(visited, set)
+    if nodes in visited:
+        print "cycle detected"
+        return 1
+    visited.add(nodes)
+
+    cache = f.ifNone(cache, dict)
+    if nodes in cache:
+        return cache[nodes]
+
+    flavor_diff = flavor_comparator_fn(graph1.node_flavors[node1], graph2.node_flavors[node2])
+    if flavor_diff == 0:
+        return 0
+
+    # TODO: accommodate skipped nodes (inlined functions)
+    if graph1.outdegree(node1) != graph2.outdegree(node2):
+        return 0
+
+    if graph1.outdegree(node1) == 0:
+        print "isomorphism of", node1, node2, ":", flavor_diff
+        cache[nodes] = flavor_diff
+        return flavor_diff
+
+    # TODO: apply some magic heuristic to avoid proceeding if at all possible
+    # because it's about to get ugly.
+    # Examples: Sum of flavors of children, size of sub-graph, etc.
+
+    child_isomorphisms = []
+    for neighbors1 in permutations(graph1.neighbors(node1)):
+        for neighbors2 in permutations(graph2.neighbors(node2)):
+            child_isomorphism = 1
+            for neighbor1, neighbor2 in zip(neighbors1, neighbors2):
+                child_isomorphism *= subgraph_isomorphism(
+                    graph1, neighbor1, graph2, neighbor2, flavor_comparator_fn, cache, visited)
+                if child_isomorphism == 0:
+                    break
+            child_isomorphisms.append(child_isomorphism)
+
+    isomorphism = flavor_diff * max(child_isomorphisms)
+
+    print "isomorphism of", node1, node2, ":", isomorphism
+    cache[nodes] = isomorphism
+    return isomorphism
+
+
+def label_library_nodes(full_graph, library_graph):
     """
     Explore the graph and return a map that labels all nodes in the graph
     as either in the library or not
     """
     labels = {}
-    entry_point = program_graph.entry_nodes[0]
+    entry_point = full_graph.entry_nodes[0]
 
     def label_nodes(node):
         pass
 
-    program_graph.dfs(label_nodes, entry_point)
+    full_graph.dfs(label_nodes, entry_point)
     return labels
 
 
