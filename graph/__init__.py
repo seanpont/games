@@ -1,6 +1,8 @@
 import random as r
 import functional as f
 from itertools import permutations
+from collections import namedtuple
+set = frozenset
 
 
 def make_adjacency_list(from_nodes, to_nodes, num_edges):
@@ -11,99 +13,94 @@ def make_adjacency_list(from_nodes, to_nodes, num_edges):
 class Graph(object):
     def __init__(self, adj_list, entry_nodes, node_flavors):
         self.adj_list = adj_list
-        self.adj_index = f.group_by(adj_list, lambda x: x[0], lambda x: x[1])
+        self.adj_index = {n: set(adj) for n, adj in
+                          (f.group_by(adj_list, lambda x: x[0], lambda x: x[1])).iteritems()}
         self.entry_nodes = entry_nodes
         self.node_flavors = node_flavors
 
     def neighbors(self, node):
-        return self.adj_index.get(node, ())
+        return self.adj_index.get(node, set())
 
     def outdegree(self, node):
         return len(self.neighbors(node))
 
-    def dfs(self, fn, node, visited=None):
+    def dfs(self, node, visited=None):
         """
-        Apply function fn to each node using a depth-first search, starting at node
-        :param fn: The function to apply to each node
-        :param node: The node to start at
-        :param visited: nodes already visited, or None
+        Returns an iterator over the graph starting at node
         """
         # Add the node to the visited set
         visited = f.add(f.ifNone(visited, set), node)
-        fn(node)
+        yield node
         for neighbor in self.neighbors(node):
             if neighbor not in visited:
-                self.dfs(fn, neighbor, visited)
+                for child in self.dfs(neighbor, visited):
+                    yield child
+
+    def flavor(self, node):
+        return self.node_flavors[node]
 
 
-def subgraph_isomorphism(graph1, node1, graph2, node2,
-                         flavor_comparator_fn=lambda f1, f2: 1 if f1 == f2 else 0,
-                         cache=None, visited=None):
+def isomorphic(graph1, node1, graph2, node2,
+               flavor_comparator_fn=lambda f1, f2: f1==f2):
+    node_comp_fn = lambda n1, n2: flavor_comparator_fn(graph1[n1], graph2[n2])
+    return _isomorphic(graph1, node1, graph2, node2, node_comp_fn)
+
+def _isomorphic(graph1, node1, graph2, node2, node_comp_fn):
     """
     Returns an integer [0, 1] that describes how isomorphic two
     sub-graphs are. Does not return a boolean because this method can take into
     account a certain amount of slop (mismatched flavors, inlined functions that
     amount to missing nodes in one graph or the other.
-    :param graph1: Graph
     :type graph1: Graph
-    :param node1: a node
-    :param graph2: Graph
+    :type node1: int
     :type graph2: Graph
-    :param node2: a node
-    :param flavor_comparator_fn: A function to compare two flavors.
-    Should return > 0 if they are reasonably close
-    :param cache: cheat sheet.
-    :type cache: dict
-    :param visited: a set of node pairs that have been visited
-    :type visited: set
-    :return: How isomorphic two subraphs rooted at node1 and node2 are,
-    based on their flavor
+    :type node2: int
+    :type flavor_fn: function
+    :rtype bool
     """
-    nodes = (node1, node2)
+    if not node_comp_fn(node1, node2):
+        return False
+    graph1_nodes = [n for n in graph1.dfs(node1)]
+    # constraints_stack is a list of tuples (constraints generator, graph1_nodes index)
+    # constraints is a map from graph1 nodes to graph2 nodes
+    constraints_stack = [(({node1: node2},), 0)]
+    while constraints_stack:
+        constraints_gen, graph1_node_index = constraints_stack.pop()
+        for constraints in constraints_gen:
+            graph1_node = graph1_nodes[graph1_node_index]
+            graph2_node = constraints[graph1_node]
+            neighbors1 = graph1.neighbors(graph1_node)
+            neighbors2 = graph2.neighbors(graph2_node)
 
-    visited = f.ifNone(visited, set)
-    if nodes in visited:
-        print "cycle detected"
-        return 1
-    visited.add(nodes)
+            # Check if any constraints have been broken
+            known_neighbors_1 = neighbors1 & set(constraints.keys())
+            known_neighbors_2 = neighbors2 & set(constraints.values())
+            if known_neighbors_2 != set([constraints[n] for n in known_neighbors_1]):
+                print "constraint violation detected"
+                continue
+            unknown_neighbors_1 = tuple(neighbors1 - known_neighbors_1)
+            unknown_neighbors_2 = tuple(neighbors2 - known_neighbors_2)
 
-    cache = f.ifNone(cache, dict)
-    if nodes in cache:
-        return cache[nodes]
+            # Four possibilities:
+            # There are no 1s and 2s
+            # There are more 1s than 2s
+            # There are equal 1s and 2s
+            # There are less 1s than 2s
 
-    flavor_diff = flavor_comparator_fn(graph1.node_flavors[node1], graph2.node_flavors[node2])
-    if flavor_diff == 0:
-        return 0
+            if len(unknown_neighbors_1) == 0 and len(unknown_neighbors_2) == 0:
+                constraints_stack.append(((constraints,), graph1_node_index + 1))
 
-    # TODO: accommodate skipped nodes (inlined functions)
-    if graph1.outdegree(node1) != graph2.outdegree(node2):
-        return 0
+            for ordered_neighbors2 in permutations(unknown_neighbors_2):
+                # check flavors to see if valid match-up
+                node_pairs = zip(unknown_neighbors_1, ordered_neighbors2)
+                if all((node_comp_fn(n1, n2) for n1, n2 in node_pairs)):
+                    new_constraints = constraints.copy()
+                    new_constraints.update({n1: n2 for n1, n2 in node_pairs})
+                    constraints_stack.append((new_constraints, graph1_node_index + 1))
 
-    if graph1.outdegree(node1) == 0:
-        print "isomorphism of", node1, node2, ":", flavor_diff
-        cache[nodes] = flavor_diff
-        return flavor_diff
 
-    # TODO: apply some magic heuristic to avoid proceeding if at all possible
-    # because it's about to get ugly.
-    # Examples: Sum of flavors of children, size of sub-graph, etc.
 
-    child_isomorphisms = []
-    for neighbors1 in permutations(graph1.neighbors(node1)):
-        for neighbors2 in permutations(graph2.neighbors(node2)):
-            child_isomorphism = 1
-            for neighbor1, neighbor2 in zip(neighbors1, neighbors2):
-                child_isomorphism *= subgraph_isomorphism(
-                    graph1, neighbor1, graph2, neighbor2, flavor_comparator_fn, cache, visited)
-                if child_isomorphism == 0:
-                    break
-            child_isomorphisms.append(child_isomorphism)
 
-    isomorphism = flavor_diff * max(child_isomorphisms)
-
-    print "isomorphism of", node1, node2, ":", isomorphism
-    cache[nodes] = isomorphism
-    return isomorphism
 
 
 def label_library_nodes(full_graph, library_graph):
