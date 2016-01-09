@@ -5,7 +5,7 @@ from graph import *
 class GraphTestCase(unittest.TestCase):
     def test_graph(self):
         g = Graph([(0, 1), (1, 2), (0, 3), (2, 3), (3, 4), (4, 1), (4, 5)], [0], [0] * 6)
-        self.assertEqual(g.neighbors(0), [1, 3])
+        self.assertEqual(g.adj(0), [1, 3])
         self.assertEqual(g.outdegree(0), 2)
         self.assertEqual(g.outdegree(5), 0)
         visited = [n for n in g.dfs(0)]

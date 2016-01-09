@@ -91,15 +91,15 @@ def count(target, xs):
     return reduce(lambda c, x: c + 1 if x == target else c, xs, 0)
 
 
-def ifNone(x, fn):
+def if_none(x, fn):
     """
     return x if x is not None, else return value returned by function fn
     :param x: the value, or None
     :param fn: a function to call if x is None
     :return: x or fn()
-    >>> ifNone(5, list)
+    >>> if_none(5, list)
     5
-    >>> ifNone(None, list)
+    >>> if_none(None, list)
     []
     """
     return x if x is not None else fn()

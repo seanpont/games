@@ -1,7 +1,7 @@
 import random as r
+
 import functional as f
-from itertools import permutations
-from collections import namedtuple
+
 set = frozenset
 
 
@@ -21,15 +21,18 @@ class Graph(object):
     def neighbors(self, node):
         return self.adj_index.get(node, set())
 
+    def adj(self, node):
+        return self.adj_index.get(node, ())
+
     def outdegree(self, node):
-        return len(self.neighbors(node))
+        return len(self.adj(node))
 
     def dfs(self, node, visited=None):
         """
         Returns an iterator over the graph starting at node
         """
         # Add the node to the visited set
-        visited = f.add(f.ifNone(visited, set), node)
+        visited = f.add(f.if_none(visited, set), node)
         yield node
         for neighbor in self.neighbors(node):
             if neighbor not in visited:
@@ -38,84 +41,6 @@ class Graph(object):
 
     def flavor(self, node):
         return self.node_flavors[node]
-
-
-def isomorphic(graph1, node1, graph2, node2,
-               flavor_comparator_fn=lambda f1, f2: f1==f2):
-    node_comp_fn = lambda n1, n2: flavor_comparator_fn(graph1[n1], graph2[n2])
-    return _isomorphic(graph1, node1, graph2, node2, node_comp_fn)
-
-def _isomorphic(graph1, node1, graph2, node2, node_comp_fn):
-    """
-    Returns an integer [0, 1] that describes how isomorphic two
-    sub-graphs are. Does not return a boolean because this method can take into
-    account a certain amount of slop (mismatched flavors, inlined functions that
-    amount to missing nodes in one graph or the other.
-    :type graph1: Graph
-    :type node1: int
-    :type graph2: Graph
-    :type node2: int
-    :type flavor_fn: function
-    :rtype bool
-    """
-    if not node_comp_fn(node1, node2):
-        return False
-    graph1_nodes = [n for n in graph1.dfs(node1)]
-    # constraints_stack is a list of tuples (constraints generator, graph1_nodes index)
-    # constraints is a map from graph1 nodes to graph2 nodes
-    constraints_stack = [(({node1: node2},), 0)]
-    while constraints_stack:
-        constraints_gen, graph1_node_index = constraints_stack.pop()
-        for constraints in constraints_gen:
-            graph1_node = graph1_nodes[graph1_node_index]
-            graph2_node = constraints[graph1_node]
-            neighbors1 = graph1.neighbors(graph1_node)
-            neighbors2 = graph2.neighbors(graph2_node)
-
-            # Check if any constraints have been broken
-            known_neighbors_1 = neighbors1 & set(constraints.keys())
-            known_neighbors_2 = neighbors2 & set(constraints.values())
-            if known_neighbors_2 != set([constraints[n] for n in known_neighbors_1]):
-                print "constraint violation detected"
-                continue
-            unknown_neighbors_1 = tuple(neighbors1 - known_neighbors_1)
-            unknown_neighbors_2 = tuple(neighbors2 - known_neighbors_2)
-
-            # Four possibilities:
-            # There are no 1s and 2s
-            # There are more 1s than 2s
-            # There are equal 1s and 2s
-            # There are less 1s than 2s
-
-            if len(unknown_neighbors_1) == 0 and len(unknown_neighbors_2) == 0:
-                constraints_stack.append(((constraints,), graph1_node_index + 1))
-
-            for ordered_neighbors2 in permutations(unknown_neighbors_2):
-                # check flavors to see if valid match-up
-                node_pairs = zip(unknown_neighbors_1, ordered_neighbors2)
-                if all((node_comp_fn(n1, n2) for n1, n2 in node_pairs)):
-                    new_constraints = constraints.copy()
-                    new_constraints.update({n1: n2 for n1, n2 in node_pairs})
-                    constraints_stack.append((new_constraints, graph1_node_index + 1))
-
-
-
-
-
-
-def label_library_nodes(full_graph, library_graph):
-    """
-    Explore the graph and return a map that labels all nodes in the graph
-    as either in the library or not
-    """
-    labels = {}
-    entry_point = full_graph.entry_nodes[0]
-
-    def label_nodes(node):
-        pass
-
-    full_graph.dfs(label_nodes, entry_point)
-    return labels
 
 
 def solve(num_library_nodes=1000,
@@ -178,7 +103,7 @@ def solve(num_library_nodes=1000,
     library_graph = Graph(lib2_adj_list, lib2_entry_nodes, lib2_node_flavors)
 
     print "unfolding..."
-    label_library_nodes(full_graph, library_graph)
+    # label_library_nodes(full_graph, library_graph)
 
 
 if __name__ == '__main__':
