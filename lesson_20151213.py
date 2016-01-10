@@ -1,13 +1,18 @@
+from test_utils import assert_equal
+
+
 # TODO: write a function that returns the intersection of two lists
 # (all the elements that are common in both groups)
 def intersect(l1, l2):
-    print l1
-    print l2
+    xs = []
+    for x in l1:
+        if x in l2:
+            xs.append(x)
+    return xs
 
-
-intersect([1,2,3], [2,3,4])
 
 # TODO: Write some tests for the intersect function
+assert_equal([1, 2, 3], intersect([1, 2, 3, 4, 5, 6], [3, 2, 1]))
 
 
 # TODO: Rewrite the intersection function using list comprehension
@@ -19,6 +24,11 @@ def intersect2(l1, l2):
 # TODO: Write a function that takes an integer n and uses List Comprehension to
 # return a list of all the divisors of n
 
+def divisors(n):
+    return [x for x in range(1, n + 1) if n % x == 0]
+
+
+assert_equal([1, 2, 3, 4, 6, 12], divisors(12))
 
 # DICTIONARIES
 
@@ -39,38 +49,20 @@ NAMES = ['Alice', 'Bob', 'Cathy', 'Dan', 'Ed', 'Frank', 'Gary', 'Helen',
          'Irene', 'Jack', 'Kelly', 'Larry']
 AGES = [20, 21, 18, 18, 19, 20, 20, 19, 19, 19, 22, 19]
 
-names_ages = {name: age for name, age in zip(NAMES, AGES)}
 
-print names_ages
-print "Kelly is %s years old" % names_ages['Kelly']
-
+def combine_names_ages(names, ages):
+    return {name: age for name, age in zip(names, ages)}
 
 
-# TODO: write a function that will increment everyone's age by 1.
+# TODO: write a function takes a map of names and ages and increments
+# everyone's age by 1.
+
+def increment_ages(names_ages):
+    for name in names_ages:
+        names_ages[name] += 1
+    return names_ages
 
 
-# INTRODUCTION TO CLASSES
-
-
-# TODO: create a store. The store will have an inventory of items. Items have
-# prices. Create functions that allow us to stock items, set prices, and
-# buy items.
-# Explore inheritance by creating different types of stores
-# Explore composition by splitting the store up into an inventory, storefront...
-
-a = {1: 1, 2: 4}
-print a.get(1)
-print a.get(2)
-
-inventory = {}
-prices = {}
-
-inventory['shoes'] = 12
-print inventory
-prices['shoes'] = '$100'
-print prices
-
-
-
+assert_equal({'bob': 20, 'sue': 32}, increment_ages({'bob': 19, 'sue': 31}))
 
 

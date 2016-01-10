@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
 def count(target, xs):
     """
-    :param target: item to count instanes of
+    :param target: item to count instances of
     :param xs: items
     :return: number of instances of target in xs
     >>> count(1, [1,2,1,3,1])
