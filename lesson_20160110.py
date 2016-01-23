@@ -100,11 +100,5 @@ sean.practice('basket weaving', 1)
 print "Sean's best skill:", sean.best_skill()
 
 
-# TODO: create a store class.
-# The store will have an inventory of items.
-# Items have prices.
-# Create functions that allow us to stock items, set prices, and buy items.
-# Explore inheritance by creating different types of stores
-# Explore composition by splitting the store up into an inventory, storefront...
 
 
