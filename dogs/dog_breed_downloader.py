@@ -1,15 +1,9 @@
-__author__ = 'tron'
-
 from HTMLParser import HTMLParser
 from urllib2 import urlopen
-from collections import namedtuple
-
-
-DogBreed = namedtuple('DogBreed', 'name origin group image_url')
+from . import DogBreed
 
 
 class DogBreedsDownloader(HTMLParser):
-
     def __init__(self):
         HTMLParser.__init__(self)
         self.breeds = []

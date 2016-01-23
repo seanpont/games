@@ -1,3 +1,4 @@
+from test_utils import assert_equal
 # WARM-UP
 
 # TODO: Write a function that takes a list of ints and returns only the odd ones
@@ -5,10 +6,18 @@
 # Remember: a number n is odd if n % 2 == 1
 
 
+def only_odds(xs):
+    return [x for x in xs if x % 2 == 1]
+
+
+assert_equal([1, 3, 5], only_odds(range(6)))
+
+
 # TODO: Write a function that can read roman numerals
 # https://en.wikipedia.org/wiki/Roman_numerals
 # Example: roman_numerals_to_int('XIV') == 14
 # Important string methods: count, replace
+
 
 NUMERALS = {
     'I': 1,
@@ -26,6 +35,23 @@ SPECIAL_NUMERALS = {
     'CD': 400,
     'CM': 900}
 
+
+def roman_numerals_to_int(numerals):
+    """
+    :type numerals str
+    """
+    result = 0
+    for special, value in SPECIAL_NUMERALS.iteritems():
+        result += numerals.count(special) * value
+        numerals = numerals.replace(special, '')
+    for numeral, value in NUMERALS.iteritems():
+        result += numerals.count(numeral) * value
+    return result
+
+
+assert_equal(4, roman_numerals_to_int('IIII'))
+assert_equal(4, roman_numerals_to_int('IV'))
+assert_equal(59, roman_numerals_to_int('LIX'))
 
 # INTRODUCTION TO CLASSES
 
