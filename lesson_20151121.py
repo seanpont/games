@@ -59,6 +59,7 @@ Two parts:
 
 step_count = [0]
 
+
 def hanoi(n, from_stack, to_stack, spare_stack):
     """
     Towers of Hanoi

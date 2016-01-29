@@ -125,10 +125,9 @@ print 'greedy solution, 19:', greedy_solution(ITEMS, 19)
 print 'greedy solution, 18:', greedy_solution(ITEMS, 18)
 print 'greedy solution, 15:', greedy_solution(ITEMS, 15)
 print 'greedy solution, 12:', greedy_solution(ITEMS, 12)
-print 'greedy solution, 2:', greedy_solution(ITEMS, 2)
+print 'greedy solution,  2:', greedy_solution(ITEMS, 2)
 
 
-# TODO: Find the optimal solution
 
 
 
