@@ -73,8 +73,8 @@ def most_valuable2(items):
     return max(items, key=value_of)
 
 
-print 'most valuable:', most_valuable(ITEMS)
-print 'most valuable:', most_valuable2(ITEMS)
+# print 'most valuable:', most_valuable(ITEMS)
+# print 'most valuable:', most_valuable2(ITEMS)
 
 # TODO: function that takes a list of items and finds the heaviest
 
@@ -93,17 +93,17 @@ def heaviest2(items):
     return max(items, key=weight_of)
 
 
-print 'heaviest:', heaviest(ITEMS)
-print 'heaviest2:', heaviest2(ITEMS)
+# print 'heaviest:', heaviest(ITEMS)
+# print 'heaviest2:', heaviest2(ITEMS)
 
 
 # TODO: Sort the items by value and weight
 
-print 'Sorted by value:', sorted(ITEMS, key=value_of)
-
-print 'Sorted by weight:', sorted(ITEMS, key=weight_of)
-
-print 'Sorted by value, descending:', sorted(ITEMS, key=value_of, reverse=True)
+# print 'Sorted by value:', sorted(ITEMS, key=value_of)
+#
+# print 'Sorted by weight:', sorted(ITEMS, key=weight_of)
+#
+# print 'Sorted by value, descending:', sorted(ITEMS, key=value_of, reverse=True)
 
 
 # TODO: write a function that finds the greedy solution to the knapsack problem
@@ -120,13 +120,13 @@ def greedy_solution(items, max_weight):
     return selected_items
 
 
-print 'greedy solution, 20:', greedy_solution(ITEMS, 20)
-print 'greedy solution, 19:', greedy_solution(ITEMS, 19)
-print 'greedy solution, 18:', greedy_solution(ITEMS, 18)
-print 'greedy solution, 15:', greedy_solution(ITEMS, 15)
-print 'greedy solution, 12:', greedy_solution(ITEMS, 12)
-print 'greedy solution,  2:', greedy_solution(ITEMS, 2)
-
+# print 'greedy solution, 20:', greedy_solution(ITEMS, 20)
+# print 'greedy solution, 19:', greedy_solution(ITEMS, 19)
+# print 'greedy solution, 18:', greedy_solution(ITEMS, 18)
+# print 'greedy solution, 15:', greedy_solution(ITEMS, 15)
+# print 'greedy solution, 12:', greedy_solution(ITEMS, 12)
+# print 'greedy solution,  2:', greedy_solution(ITEMS, 2)
+#
 
 
 
