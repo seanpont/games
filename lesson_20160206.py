@@ -39,9 +39,7 @@ class Card(object):
 
 class Deck(object):
     def __init__(self):
-        self.cards = [Card(value, suit)
-                      for value in RANKS
-                      for suit in SUITS]
+        self.cards = [Card(rank, suit) for rank in RANKS for suit in SUITS]
         shuffle(self.cards)
 
     def get_card(self):
@@ -49,8 +47,8 @@ class Deck(object):
 
 
 class Hand(object):
-    def __init__(self):
-        self.cards = []
+    def __init__(self, *cards):
+        self.cards = list(cards)
 
     def value(self):
         """
@@ -94,18 +92,24 @@ class Hand(object):
         cards = sorted(self.cards)
         return len(self.cards) == 2 and cards[0].ace() and cards[1].face_card()
 
+    def bust(self):
+        return self.value() == -1
+
+    def __str__(self):
+        return (self.value(), self.cards).__str__()
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Player(object):
     def __init__(self, name, chips):
         self.name = name
         self.chips = chips
-        self.hand = Hand()
+        self.hand = None
 
-    def deal(self, card):
-        self.hand.add_card(card)
-
-    def bust(self):
-        return self.hand.value() == -1
+    def deal(self, *cards):
+        self.hand = Hand(*cards)
 
     def bet(self):
         if self.chips < 2:
@@ -115,11 +119,7 @@ class Player(object):
     def hit(self):
         return self.hand.value() <= 17
 
-    def blackjack(self):
-        return self.hand.value() == 22
-
     def win(self, chips):
-        self.won = True
         self.chips += chips
 
     def push(self):
@@ -129,7 +129,7 @@ class Player(object):
         self.chips -= chips
 
     def __str__(self):
-        return '%s'
+        return (self.name, self.chips, self.hand).__str__()
 
 
 class BlackJack(object):
@@ -139,44 +139,43 @@ class BlackJack(object):
 
     def play_hand(self):
         deck = Deck()
+        dealer = self.dealer
+        players = self.players
 
         # Collect bets
-        bets = [player.bet() for player in self.players]
+        bets = [player.bet() for player in players]
 
         # Deal Players
-        for player in self.players:
-            player.deal(deck.get_card())
-            player.deal(deck.get_card())
+        for player in players:
+            player.deal(deck.get_card(), deck.get_card())
 
         # Deal Dealer
-        self.dealer.deal(deck.get_card())
+        dealer.deal(deck.get_card())
 
         # Service Players
-        for player in self.players:
-            while player.hit() and not player.bust():
-                player.deal(deck.get_card())
+        for player in players:
+            while not player.hand.bust() and player.hit():
+                player.hand.add_card(deck.get_card())
 
         # Service Dealer
-        self.dealer.deal(deck.get_card())
-        while self.dealer.hit() and not self.dealer.bust():
-            self.dealer.deal(deck.get_card())
+        dealer.deal(deck.get_card())
+        while not dealer.hand.bust() and dealer.hit():
+            dealer.hand.add_card(deck.get_card())
 
         # Collect
-        for bet, player in zip(bets, self.players):
-            if player.hand.value() > self.dealer.hand.value():
-                amount = bet * 3 / 2 if player.blackjack() else bet
-                player.win(amount)
-                self.dealer.lose(amount)
-            elif player.hand.value() == self.dealer.hand.value():
-                player.push()
-            else:
+        for bet, player in zip(bets, players):
+            if player.hand.bust() or player.hand.value() < dealer.hand.value():
                 player.lose(bet)
-                self.dealer.win(bet)
+                dealer.win(bet)
+            elif player.hand.value() > dealer.hand.value():
+                amount = bet * 3 / 2 if player.hand.blackjack() else bet
+                player.win(amount)
+                dealer.lose(amount)
+            else:
+                player.push()
 
     def __str__(self):
-        return '\n'.join(
-
-            ("%s: %s %s" % (player.name, player.chips, player.hand) for player in self.players))
+        return '\n'.join((str(p) for p in self.players)) + '\n%s' % self.dealer
 
 
 def play():
@@ -184,9 +183,10 @@ def play():
         Player('Sean', 100),
         Player('YiOu', 100)
     ])
-    for _ in xrange(100):
+    for _ in xrange(1000):
         blackjack.play_hand()
         print blackjack
+        print
 
 
 if __name__ == '__main__':
