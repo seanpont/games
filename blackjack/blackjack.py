@@ -16,19 +16,11 @@ class Card(object):
     def __repr__(self):
         return self.__str__()
 
-    def __lt__(self, other):
-        return self.repr.__lt__(other.repr)
-
     def value(self):
-        """
-        >>> Card(4, 'Hearts').value()
-        4
-        >>> Card('Ace', 'Hearts').value()
-        11
-        >>> Card('Jack', 'Hearts').value()
-        10
-        """
         return 11 if self.ace() else 10 if self.face_card() else self.rank
+
+    def values(self):
+        return (1, 11) if self.ace() else (10,) if self.face_card() else (self.rank,)
 
     def ace(self):
         return self.rank == 'Ace'
@@ -52,45 +44,59 @@ class Hand(object):
 
     def value(self):
         """
-        >>> h = Hand()
-        >>> h.add_card(Card(3, 'Clubs'))
-        >>> h.value()
+        >>> Hand(Card(3, 'Clubs')).value()
         3
-        >>> h.add_card(Card('Ace', 'Diamonds'))
-        >>> h.value()
+        >>> Hand(Card(3, 'Clubs'), Card('Ace', 'Diamonds')).value()
         14
-        >>> h.add_card(Card('Ace', 'Hearts'))
-        >>> h.value()
+        >>> Hand(Card(3, 'Clubs'), Card('Ace', 'Diamonds'), Card('Ace', 'Hearts')).value()
         15
-        >>> h.add_card(Card(8, 'Spades'))
-        >>> h.value()
+        >>> Hand(Card(3, 'Clubs'), Card('Ace', 'Diamonds'), Card('Ace', 'Hearts'), Card(8, 'Spades')).value()
         13
-        >>> h.add_card(Card(8, 'Spades'))
-        >>> h.value()
+        >>> Hand(Card(9, 'Clubs'), Card('Ace', 'Diamonds'), Card('Ace', 'Hearts'), Card(10, 'Spades')).value()
         21
-        >>> h.add_card(Card(2, 'Spades'))
-        >>> h.value()
+        >>> Hand(Card(10, 'Clubs'), Card('Ace', 'Diamonds'), Card('Ace', 'Hearts'), Card(10, 'Spades')).value()
         -1
-        >>> h = Hand()
-        >>> h.add_card(Card('Ace', 'Spades'))
-        >>> h.add_card(Card('King', 'Spades'))
-        >>> h.value()
-        22
+        >>> Hand(Card('Ace', 'Spades'), Card('King', 'Spades')).value()
+        21
         """
-        if self.blackjack():
-            return 22
-        values = [0]
+        values = self.values()
+        return -1 if not values else values[-1]
+
+    def values(self):
+        """
+        >>> Hand(Card('Ace', 'Clubs'), Card('Ace', 'Diamonds')).values()
+        (2, 12)
+        >>> Hand(Card('Ace', 'Clubs'), Card(2, 'Diamonds')).values()
+        (3, 13)
+        >>> Hand(Card('Ace', 'Clubs'), Card(2, 'Diamonds'), Card(3, 'Hearts')).values()
+        (6, 16)
+        >>> Hand(Card('Ace', 'Clubs'), Card(2, 'Diamonds'), Card(3, 'Hearts'), Card(10, 'Clubs')).values()
+        (16,)
+        """
+        values = 0,
         for card in self.cards:
-            card_values = (1, 11) if card.ace() else (card.value(),)
-            values = [v + x for v in values for x in card_values if v + x <= 21]
-        return -1 if not values else sorted(values)[-1]
+            values = tuple((v + x for v in values for x in card.values() if v + x <= 21))
+        return tuple(sorted(set(values)))
 
     def add_card(self, card):
         self.cards.append(card)
 
+    def compare(self, dealer_hand, bet):
+        if self.blackjack():
+            return 0 if dealer_hand.blackjack() else bet * 3 / 2
+        elif self.bust():
+            return -bet
+        else:
+            return bet if self.value() > dealer_hand.value() else -bet if self.value() < dealer_hand.value() else 0
+
     def blackjack(self):
-        cards = sorted(self.cards)
-        return len(self.cards) == 2 and cards[0].ace() and cards[1].face_card()
+        return len(self.cards) == 2 and self.has_ace() and self.has_face_card()
+
+    def has_ace(self):
+        return any((card.ace() for card in self.cards))
+
+    def has_face_card(self):
+        return any((card.face_card() for card in self.cards))
 
     def bust(self):
         return self.value() == -1
@@ -114,20 +120,54 @@ class Player(object):
     def bet(self):
         return 2
 
-    def hit(self):
+    def hit(self, dealer_card):
         return self.hand.value() <= 17
 
-    def win(self, chips):
+    def add_chips(self, chips):
         self.chips += chips
-
-    def push(self):
-        pass
-
-    def lose(self, chips):
-        self.chips -= chips
 
     def __str__(self):
         return (self.name, self.chips, self.hand).__str__()
+
+
+class CmdLinePlayer(Player):
+    def hit(self, dealer_card):
+        print self
+        return raw_input('Hit (Y/n)?: ').lower() == 'y'
+
+
+class AdvancedPlayer(Player):
+    def hit(self, dealer_card):
+        """ http://www.blackjackclassroom.com/wp-content/uploads/2009/12/single-deck-basic-strategy.png """
+        return {(11, 21): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (10, 20): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (9, 19): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (8, 18): (0, 0, 0, 0, 2, 0, 0, 0, 0, 0),
+                (7, 17): (0, 2, 2, 2, 2, 0, 0, 1, 1, 0),
+                (6, 16): (1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
+                (5, 15): (1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
+                (4, 14): (1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
+                (3, 13): (1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
+                (2, 12): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                (21,): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (20,): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (19,): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (18,): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (17,): (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (16,): (0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+                (15,): (0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+                (14,): (0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+                (13,): (0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+                (12,): (1, 1, 0, 0, 0, 0, 1, 1, 1, 1),
+                (11,): (2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
+                (10,): (2, 2, 2, 2, 2, 2, 2, 2, 1, 1),
+                (9,): (2, 2, 2, 2, 2, 1, 1, 1, 1, 1),
+                (8,): (1, 1, 1, 2, 2, 1, 1, 1, 1, 1),
+                (7,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                (6,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                (5,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                (4,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                }[self.hand.values()][dealer_card.value() - 2] > 0
 
 
 class Blackjack(object):
@@ -141,48 +181,37 @@ class Blackjack(object):
         # Collect bets
         bets = [player.bet() for player in self.players]
 
-        # Deal self.players
+        # Deal players
         for player in self.players:
             player.deal(deck.get_card(), deck.get_card())
 
         # Deal Dealer
         self.dealer.deal(deck.get_card())
+        dealer_card = self.dealer.hand.cards[0]
 
-        # Service self.players
+        # Service players
         for player in self.players:
-            while not player.hand.bust() and player.hit():
+            while not player.hand.bust() and player.hit(dealer_card):
                 player.hand.add_card(deck.get_card())
 
         # Service Dealer
         self.dealer.deal(deck.get_card())
-        while not self.dealer.hand.bust() and self.dealer.hit():
+        while not self.dealer.hand.bust() and self.dealer.hit(None):
             self.dealer.hand.add_card(deck.get_card())
 
         # Collect
         for bet, player in zip(bets, self.players):
-            if player.hand.bust() or player.hand.value() < self.dealer.hand.value():
-                player.lose(bet)
-                self.dealer.win(bet)
-            elif player.hand.value() > self.dealer.hand.value():
-                amount = bet * 3 / 2 if player.hand.blackjack() else bet
-                player.win(amount)
-                self.dealer.lose(amount)
-            else:
-                player.push()
+            exchanged = player.hand.compare(self.dealer.hand, bet)
+            player.add_chips(exchanged)
+            self.dealer.add_chips(exchanged)
 
     def __str__(self):
         return '%s\n' % self.dealer + '\n'.join(map(str, self.players)) + '\n'
 
 
-class CmdLinePlayer(Player):
-    def hit(self):
-        print self
-        return raw_input('Hit (Y/n)?: ').lower() == 'y'
-
-
 def simulate_play(rounds):
     print 'Simulating %s rounds of Blackjack' % rounds
-    blackjack = Blackjack(Player('Dealer'), (Player('Cedric'), Player('Alexia')))
+    blackjack = Blackjack(Player('Dealer'), (Player('Basic'), AdvancedPlayer('Advanced')))
     for _ in xrange(rounds):
         blackjack.play_hand()
 
@@ -202,20 +231,20 @@ def cmd_line_play(rounds):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()
 
     import argparse
+
     parser = argparse.ArgumentParser(description='Play Blackjack.')
     parser.add_argument('--cmd', dest='cmd', action='store_const',
                         const=True, default=False,
                         help='Command Line Version')
     parser.add_argument('--rounds', help='Number of rounds', type=int,
-                        default=1000)
+                        default=10000)
 
     args = parser.parse_args()
     if args.cmd:
         cmd_line_play(args.rounds)
     else:
         simulate_play(args.rounds)
-
-
