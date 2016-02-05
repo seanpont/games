@@ -130,55 +130,48 @@ class Player(object):
         return (self.name, self.chips, self.hand).__str__()
 
 
-def play_hand(dealer, players):
-    deck = Deck()
+class Blackjack(object):
+    def __init__(self, dealer, players):
+        self.dealer = dealer
+        self.players = players
 
-    # Collect bets
-    bets = [player.bet() for player in players]
+    def play_hand(self):
+        deck = Deck()
 
-    # Deal Players
-    for player in players:
-        player.deal(deck.get_card(), deck.get_card())
+        # Collect bets
+        bets = [player.bet() for player in self.players]
 
-    # Deal Dealer
-    dealer.deal(deck.get_card())
+        # Deal self.players
+        for player in self.players:
+            player.deal(deck.get_card(), deck.get_card())
 
-    # Service Players
-    for player in players:
-        while not player.hand.bust() and player.hit():
-            player.hand.add_card(deck.get_card())
+        # Deal Dealer
+        self.dealer.deal(deck.get_card())
 
-    # Service Dealer
-    dealer.deal(deck.get_card())
-    while not dealer.hand.bust() and dealer.hit():
-        dealer.hand.add_card(deck.get_card())
+        # Service self.players
+        for player in self.players:
+            while not player.hand.bust() and player.hit():
+                player.hand.add_card(deck.get_card())
 
-    # Collect
-    for bet, player in zip(bets, players):
-        if player.hand.bust() or player.hand.value() < dealer.hand.value():
-            player.lose(bet)
-            dealer.win(bet)
-        elif player.hand.value() > dealer.hand.value():
-            amount = bet * 3 / 2 if player.hand.blackjack() else bet
-            player.win(amount)
-            dealer.lose(amount)
-        else:
-            player.push()
+        # Service Dealer
+        self.dealer.deal(deck.get_card())
+        while not self.dealer.hand.bust() and self.dealer.hit():
+            self.dealer.hand.add_card(deck.get_card())
 
+        # Collect
+        for bet, player in zip(bets, self.players):
+            if player.hand.bust() or player.hand.value() < self.dealer.hand.value():
+                player.lose(bet)
+                self.dealer.win(bet)
+            elif player.hand.value() > self.dealer.hand.value():
+                amount = bet * 3 / 2 if player.hand.blackjack() else bet
+                player.win(amount)
+                self.dealer.lose(amount)
+            else:
+                player.push()
 
-def print_game_state(dealer, players):
-    for player in players:
-        print player
-    print dealer
-    print
-
-
-def simulate_play():
-    players = Player('Sean'), Player('YiOu')
-    dealer = Player('Dealer')
-    for _ in xrange(1000):
-        play_hand(dealer, players)
-        print_game_state(dealer, players)
+    def __str__(self):
+        return '%s\n' % self.dealer + '\n'.join(map(str, self.players)) + '\n'
 
 
 class CmdLinePlayer(Player):
@@ -187,15 +180,24 @@ class CmdLinePlayer(Player):
         return raw_input('Hit (Y/n)?: ').lower() == 'y'
 
 
-def command_line_play():
+def simulate_play(rounds):
+    print 'Simulating %s rounds of Blackjack' % rounds
+    blackjack = Blackjack(Player('Dealer'), (Player('Cedric'), Player('Alexia')))
+    for _ in xrange(rounds):
+        blackjack.play_hand()
+
+    print blackjack
+
+
+def cmd_line_play(rounds):
     num_players = int(raw_input("Number of players: "))
-    players = []
-    for i in range(num_players):
-        players.append(CmdLinePlayer(raw_input("Player %s name: " % i)))
+    players = [CmdLinePlayer(raw_input("Player %s name: " % i))
+               for i in range(num_players)]
     dealer = Player('Dealer')
-    while True:
-        play_hand(dealer, players)
-        print_game_state(dealer, players)
+    blackjack = Blackjack(dealer, players)
+    for _ in xrange(rounds):
+        blackjack.play_hand()
+        print blackjack
 
 
 if __name__ == '__main__':
@@ -204,9 +206,16 @@ if __name__ == '__main__':
 
     import argparse
     parser = argparse.ArgumentParser(description='Play Blackjack.')
-    parser.add_argument('--style', dest='play', action='store_const',
-                        const=command_line_play, default=simulate_play,
-                        help='Command Line Version (default: simulate play)')
+    parser.add_argument('--cmd', dest='cmd', action='store_const',
+                        const=True, default=False,
+                        help='Command Line Version')
+    parser.add_argument('--rounds', help='Number of rounds', type=int,
+                        default=1000)
 
     args = parser.parse_args()
-    args.play()
+    if args.cmd:
+        cmd_line_play(args.rounds)
+    else:
+        simulate_play(args.rounds)
+
+
