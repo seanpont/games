@@ -2,6 +2,7 @@ from random import shuffle
 
 RANKS = ['Ace', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King']
 SUITS = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
+PLAYS = {0: 'stay', 1: 'hit', 2: 'double down'}
 
 
 class Card(object):
@@ -120,20 +121,31 @@ class Player(object):
     def bet(self):
         return 2
 
-    def hit(self, dealer_card):
-        return self.hand.value() <= 17
-
     def add_chips(self, chips):
         self.chips += chips
+
+    def play(self, dealer_card):
+        """
+        return one of:
+            0: stay,
+            1: hit,
+            2: double down
+        :param dealer_card: Card
+        :return: str
+        """
+        return 1 if self.hand.value() < 17 else 0
 
     def __str__(self):
         return (self.name, self.chips, self.hand).__str__()
 
 
 class CmdLinePlayer(Player):
-    def hit(self, dealer_card):
-        print self
-        return raw_input('Hit (Y/n)?: ').lower() == 'y'
+    def play(self, dealer_card):
+        return int(raw_input('%s: Stay (0), Hit (1), or Double Down (2)?: ' % self.name))
+
+    def add_chips(self, chips):
+        super(CmdLinePlayer, self).add_chips(chips)
+        print '%s %s' % (self.name, 'won!' if chips > 0 else 'pushed' if chips == 0 else 'lost :(')
 
 
 class AdvancedPlayer(Player):
@@ -167,7 +179,7 @@ class AdvancedPlayer(Player):
                 (6,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
                 (5,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
                 (4,): (1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-                }[self.hand.values()][dealer_card.value() - 2] > 0
+                }[self.hand.values()][dealer_card.value() - 2]
 
 
 class Blackjack(object):
@@ -190,23 +202,42 @@ class Blackjack(object):
         dealer_card = self.dealer.hand.cards[0]
 
         # Service players
-        for player in self.players:
-            while not player.hand.bust() and player.hit(dealer_card):
-                player.hand.add_card(deck.get_card())
+        for i, player in enumerate(self.players):
+            self.render("%s's turn" % player.name)
+            while not player.hand.bust():
+                play = player.play(dealer_card)
+                if play in (1, 2):  # hit or double down
+                    card = deck.get_card()
+                    player.hand.add_card(card)
+                    self.render("%s drew a %s" % (player.name, card))
+                if play == 2:
+                    bets[i] *= 2
+                if play in (0, 2):  # stay or double down
+                    break
 
         # Service Dealer
         self.dealer.deal(deck.get_card())
-        while not self.dealer.hand.bust() and self.dealer.hit(None):
+        while not self.dealer.hand.bust() and self.dealer.play(None):
             self.dealer.hand.add_card(deck.get_card())
+
+        self.render("Dealer has played")
 
         # Collect
         for bet, player in zip(bets, self.players):
             exchanged = player.hand.compare(self.dealer.hand, bet)
             player.add_chips(exchanged)
-            self.dealer.add_chips(exchanged)
+            self.dealer.add_chips(-exchanged)
 
     def __str__(self):
-        return '%s\n' % self.dealer + '\n'.join(map(str, self.players)) + '\n'
+        return '%s\n' % self.dealer + '\n'.join(map(str, self.players))
+
+    def render(self, state):
+        pass
+
+
+class CmdLineBlackjack(Blackjack):
+    def render(self, state):
+        print '\n%s\n%s\n' % (state, self)
 
 
 def simulate_play(rounds):
@@ -223,10 +254,10 @@ def cmd_line_play(rounds):
     players = [CmdLinePlayer(raw_input("Player %s name: " % i))
                for i in range(num_players)]
     dealer = Player('Dealer')
-    blackjack = Blackjack(dealer, players)
+    blackjack = CmdLineBlackjack(dealer, players)
     for _ in xrange(rounds):
+        print '\n============================'
         blackjack.play_hand()
-        print blackjack
 
 
 if __name__ == '__main__':
