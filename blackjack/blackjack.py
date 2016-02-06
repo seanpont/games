@@ -9,7 +9,6 @@ class Card(object):
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.repr = (RANKS.index(rank), SUITS.index(suit))
 
     def __str__(self):
         return '%s of %s' % (self.rank, self.suit)
@@ -243,7 +242,8 @@ class CmdLineBlackjack(Blackjack):
 
 def simulate_play(rounds):
     print 'Simulating %s rounds of Blackjack' % rounds
-    blackjack = Blackjack(Player('Dealer'), (Player('Basic'), AdvancedPlayer('Advanced')))
+    blackjack = Blackjack(Player('Dealer'),
+                          (Player('Basic'), AdvancedPlayer('Advanced')))
     for _ in xrange(rounds):
         blackjack.play_hand()
 

@@ -1,4 +1,4 @@
-from lesson_20160123 import Item, ITEMS, greedy_solution
+from lesson_20160123 import Item, ITEMS
 
 
 # WARM UP
