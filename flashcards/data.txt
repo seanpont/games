@@ -1,0 +1,5 @@
+California: Sacramento
+Alaska: Juno
+Nevada: Carson City
+Colorado: Denver
+New Mexico: Santa Fe

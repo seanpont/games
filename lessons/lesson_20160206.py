@@ -27,3 +27,29 @@ class Deck(object):
         return self.cards.pop()
 
 
+class Hand(object):
+    def __init__(self):
+        self.cards = []
+
+    def add_card(self, card):
+        self.cards.append(card)
+
+    def __str__(self):
+        return str(self.cards)
+
+    def value(self):
+        value = 0
+        for card in self.cards:
+            print card
+            rank = card.rank
+
+
+deck = Deck()
+print deck.cards
+
+
+hand = Hand()
+hand.add_card(deck.get_card())
+hand.add_card(deck.get_card())
+print hand
+

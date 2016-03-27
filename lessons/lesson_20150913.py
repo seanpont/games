@@ -38,7 +38,7 @@ Programs
       negative
       0
     decrementing loop
-    How can we modify this program so taht it finds the root of arbitrary numbers?
+    How can we modify this program so that it finds the root of arbitrary numbers?
     Concept of approximation
     find y such that y*y = x +/- epsilon
     Program 3
@@ -97,7 +97,7 @@ while abs(ans**2 - x) >= epsilon and ans <= max(x, 1):
         low = ans
     else:
         high = ans
-    ans = (high + low)/2.0
+    ans = (high + low) / 2.0
 print 'numGuesses =', numGuesses
 print ans, 'is close to square root of', x
 

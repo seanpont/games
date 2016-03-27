@@ -35,7 +35,7 @@ assert_equal([1, 2, 3, 4, 6, 12], divisors(12))
 # D = {key1:value1, ...} creates a non-empty dictionary
 # D[key] returns the value thats mapped to by key.
 # (What if there's no such key?)
-# D[key] = newvalue maps newvalue to key. Overwrites any previous value.
+# D[key] = value maps newvalue to key. Overwrites any previous value.
 # Remember - newvalue can be any valid Python data structure.
 # del D[key] deletes the mapping with that key from D.
 # len(D) returns the number of entries (mappings) in D.
