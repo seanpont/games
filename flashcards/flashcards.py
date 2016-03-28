@@ -62,8 +62,31 @@ if __name__ == '__main__':
   clear_console()
   flashcards = Flashcards()
   flashcards.import_file('./mini_data.txt')
-  # flashcards.quiz()
-  flashcards.practice()
+  flashcards.quiz()
+  # flashcards.practice()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
