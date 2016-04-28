@@ -24,8 +24,23 @@ Problem 1: Compress and decompress a message using morse code
 Problem 2: Design and write a codec to compress genomic data
 
 To download genomic some data:
-$ wget --timestamping 'ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chrM.fa.gz'
-$ gunzip chrM.fa.gz
+
+wget --timestamping 'ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chrM.fa.gz'
+gunzip chrM.fa.gz
+mv chrM.fa human.chrM.fa
+
+wget --timestamping 'ftp://hgdownload.cse.ucsc.edu/goldenPath/canFam2/chromosomes/chrM.fa.gz'
+gunzip chrM.fa.gz
+mv chrM.fa genomics/dog.chrM.fa
+
+Problems
+how many genes?
+decode a gene
+decode all genes
+length of genes
+most common codons
+
+
 """
 
 morse_code_dict = {"A": ".-",
@@ -90,49 +105,105 @@ def test_morse_code(message):
   print message
 
 
-def read_file(fname):
+codon_amino_acid_map = {
+    "AAA": "Lysine",
+    "AAC": "Asparagine",
+    "AAG": "Lysine",
+    "AAT": "Asparagine",
+    "ACA": "Threonine",
+    "ACC": "Threonine",
+    "ACG": "Threonine",
+    "ACT": "Threonine",
+    "AGA": "Arginine",
+    "AGC": "Serine",
+    "AGG": "Arginine",
+    "AGT": "Serine",
+    "ATA": "Isoleucine",
+    "ATC": "Isoleucine",
+    "ATG": "Methionine",
+    "ATT": "Isoleucine",
+    "CAA": "Glutamine",
+    "CAC": "Histidine",
+    "CAG": "Glutamine",
+    "CAT": "Histidine",
+    "CCA": "Proline",
+    "CCC": "Proline",
+    "CCG": "Proline",
+    "CCT": "Proline",
+    "CGA": "Arginine",
+    "CGC": "Arginine",
+    "CGG": "Arginine",
+    "CGT": "Arginine",
+    "CTA": "Leucine",
+    "CTC": "Leucine",
+    "CTG": "Leucine",
+    "CTT": "Leucine",
+    "GAA": "Glutamic_acid",
+    "GAC": "Aspartic_acid",
+    "GAG": "Glutamic_acid",
+    "GAT": "Aspartic_acid",
+    "GCA": "Alanine",
+    "GCC": "Alanine",
+    "GCG": "Alanine",
+    "GCT": "Alanine",
+    "GGA": "Glycine",
+    "GGC": "Glycine",
+    "GGG": "Glycine",
+    "GGT": "Glycine",
+    "GTA": "Valine",
+    "GTC": "Valine",
+    "GTG": "Valine",
+    "GTT": "Valine",
+    "TAA": "Stop",
+    "TAC": "Tyrosine",
+    "TAG": "Stop",
+    "TAT": "Tyrosine",
+    "TCA": "Serine",
+    "TCC": "Serine",
+    "TCG": "Serine",
+    "TCT": "Serine",
+    "TGA": "Stop",
+    "TGC": "Cysteine",
+    "TGG": "Tryptophan",
+    "TGT": "Cysteine",
+    "TTA": "Leucine",
+    "TTC": "Phenylalanine",
+    "TTG": "Leucine",
+    "TTT": "Phenylalanine",
+}
+
+start_codon = "ATG"
+stop_codons = ("TAA", "TAG", "TGA")
+
+
+def read_dna_file(fname):
   data = ''
   for line in open(fname):
     data += line.strip().upper()
   return data
 
 
-def codon_frequencies(data):
-  freq_map = {}
-  for i in xrange(0, len(data), 3):
-    codon = data[i:i + 3]
-    freq_map[codon] = freq_map.get(codon, 0) + 1
-  codon_counts = list(freq_map.iteritems())
-  codon_counts = sorted(codon_counts, key=lambda x: x[1], reverse=True)
-  for codon, count in codon_counts:
-    print "%s: %s" % (codon, count)
-  print "number of codons: %s" % len(codon_counts)
+def find_gene(dna):
+  i = dna.find(start_codon)
+  gene = []
+  while i < len(dna) and dna[i:i + 3] not in stop_codons:
+    gene.append(codon_amino_acid_map[dna[i:i + 3]])
+    i += 3
+  return gene
 
 
-
-def encode_data(data):
-  return data
-
-
-def decode_data(data):
-  return data
-
-
-def encode_decode(fname):
-  data = read_file(fname)
-  codon_frequencies(data)
-  print "Data length: %s" % len(data)
-  encoded = encode_data(data)
-  print "Encoded length: %s" % len(encoded)
-  decoded = decode_data(data)
-  print "Decoded length: %s" % len(decoded)
-  print "Original == Decoded (ie lossless)? %s" % (data == decoded)
-
+def explore_genetics(fname):
+  dna = read_dna_file(fname)
+  number_of_genes = dna.count(start_codon)
+  print 'number of genes: %s' % number_of_genes
+  print 'number of amino acids: %s' % len(set(codon_amino_acid_map.values()))
+  gene = find_gene(dna)
+  print 'first gene: %s' % gene
 
 
 if __name__ == '__main__':
   test_morse_code("Cedric and Alexia are l33t hackerz")
-  # encode_decode('../genomics/chrM.fa')
+  explore_genetics('../genomics/human.chrM.fa')
 
 
 
