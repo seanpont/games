@@ -100,9 +100,9 @@ def from_morse_code(morse_code):
 
 def test_morse_code(message):
   morse_code = to_morse_code(message)
-  print morse_code
+  print(morse_code)
   message = from_morse_code(morse_code)
-  print message
+  print(message)
 
 
 codon_amino_acid_map = {
@@ -195,10 +195,10 @@ def find_gene(dna):
 def explore_genetics(fname):
   dna = read_dna_file(fname)
   number_of_genes = dna.count(start_codon)
-  print 'number of genes: %s' % number_of_genes
-  print 'number of amino acids: %s' % len(set(codon_amino_acid_map.values()))
+  print('number of genes: %s' % number_of_genes)
+  print('number of amino acids: %s' % len(set(codon_amino_acid_map.values())))
   gene = find_gene(dna)
-  print 'first gene: %s' % gene
+  print('first gene: %s' % gene)
 
 
 if __name__ == '__main__':
