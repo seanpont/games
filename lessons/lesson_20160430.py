@@ -1,120 +1,94 @@
 """
-Problems
-how many genes?
-decode a gene
-decode all genes
-length of genes
-most common codons
+Two quick games
 
-wget --timestamping 'ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chrM.fa.gz'
-gunzip chrM.fa.gz
-mv chrM.fa human.chrM.fa
+Josephus Problem
+N people are in dire straits and agree to the following strategy to reduce
+the population: They arrange themselves in a circle (apt positions numbered
+from 0 to N-1) and proceed around the circle starting at 0 and eliminating
+every Mth person until only one person is left. Legend has it that Josephus
+figured out where to sit to avoid being eliminated.
 
-wget --timestamping 'ftp://hgdownload.cse.ucsc.edu/goldenPath/canFam2/chromosomes/chrM.fa.gz'
-gunzip chrM.fa.gz
-mv chrM.fa genomics/dog.chrM.fa
+Write a function which takes M and N from the command line and prints out
+the order in which people are eliminated. For example:
+
+Number of people: 7
+Skip: 1
+answer: 1 3 5 0 4 2 6
+
+Bonus:
+Use the 'Josephus Cipher' to encode and decode messages!
+
+================================================================================
+
+Hot or cold
+
+Your goal is to guess a secret number!
+You repeatedly guess a number between 0 and N and the game stops when you
+guess the secret number. When you guess incorrectly, you learn if the
+guess is hotter (closer) or colder (farther) from than the last guess.
+
+Alternate version: Play the game on a 2D grid instead of a 1d number line.
+
+Bonus: design an algorithm that find the secret square in at most ~2*lg N
+guesses. Can you do it in lgN?
 
 """
 
+def josephus(n, m):
+  x, y, i = range(n), [], m
+  while x:
+    y.append(x.pop(i))
+    i = (i + m) % len(x) if x else 0
+  return y
 
-codon_amino_acid_map = {
-    "AAA": "Lysine",
-    "AAC": "Asparagine",
-    "AAG": "Lysine",
-    "AAT": "Asparagine",
-    "ACA": "Threonine",
-    "ACC": "Threonine",
-    "ACG": "Threonine",
-    "ACT": "Threonine",
-    "AGA": "Arginine",
-    "AGC": "Serine",
-    "AGG": "Arginine",
-    "AGT": "Serine",
-    "ATA": "Isoleucine",
-    "ATC": "Isoleucine",
-    "ATG": "Methionine",
-    "ATT": "Isoleucine",
-    "CAA": "Glutamine",
-    "CAC": "Histidine",
-    "CAG": "Glutamine",
-    "CAT": "Histidine",
-    "CCA": "Proline",
-    "CCC": "Proline",
-    "CCG": "Proline",
-    "CCT": "Proline",
-    "CGA": "Arginine",
-    "CGC": "Arginine",
-    "CGG": "Arginine",
-    "CGT": "Arginine",
-    "CTA": "Leucine",
-    "CTC": "Leucine",
-    "CTG": "Leucine",
-    "CTT": "Leucine",
-    "GAA": "Glutamic_acid",
-    "GAC": "Aspartic_acid",
-    "GAG": "Glutamic_acid",
-    "GAT": "Aspartic_acid",
-    "GCA": "Alanine",
-    "GCC": "Alanine",
-    "GCG": "Alanine",
-    "GCT": "Alanine",
-    "GGA": "Glycine",
-    "GGC": "Glycine",
-    "GGG": "Glycine",
-    "GGT": "Glycine",
-    "GTA": "Valine",
-    "GTC": "Valine",
-    "GTG": "Valine",
-    "GTT": "Valine",
-    "TAA": "Stop",
-    "TAC": "Tyrosine",
-    "TAG": "Stop",
-    "TAT": "Tyrosine",
-    "TCA": "Serine",
-    "TCC": "Serine",
-    "TCG": "Serine",
-    "TCT": "Serine",
-    "TGA": "Stop",
-    "TGC": "Cysteine",
-    "TGG": "Tryptophan",
-    "TGT": "Cysteine",
-    "TTA": "Leucine",
-    "TTC": "Phenylalanine",
-    "TTG": "Leucine",
-    "TTT": "Phenylalanine",
-}
-
-start_codon = "ATG"
-stop_codons = ("TAA", "TAG", "TGA")
+print josephus(7, 1)
 
 
-dna = ''.join(map(str.strip, open('../genomics/human.chrM.fa').readlines()))
-print(dna[:200])
+import string
+characters = (string.ascii_letters +
+              string.digits +
+              string.punctuation +
+              string.whitespace)
 
-num_genes = 0
-gene = []
-genes = []
-in_gene = False
-i = 0
-while i < len(dna):
-  codon = dna[i:i + 3].upper()
-  if in_gene or codon == start_codon:
-    in_gene = True
-    if codon in stop_codons:
-      in_gene = False
-      genes.append(gene)
-      gene = []
+def encode(message, key):
+  cipher = josephus(len(characters), key)
+  return ''.join((characters[cipher[characters.index(m)]] for m in message))
+
+def decode(message, key):
+  cipher = josephus(len(characters), key)
+  return ''.join((characters[cipher.index(characters.index(m))] for m in message))
+
+
+key = 17
+encoded = encode("Cedric and Alexia are l33t h4ckerz!", key)
+print encoded
+decoded = decode(encoded, key)
+print decoded
+
+
+def hot_or_cold(n):
+
+  guess1 = guess2 = int(raw_input("guess: "))
+  if guess1 == n:
+    print 'bingo!'
+    return
+  while guess2 != n:
+    guess1 = guess2
+    guess2 = int(raw_input("guess again: "))
+    diff1 = abs(n - guess1)
+    diff2 = abs(n - guess2)
+    if diff2 == 0:
+      print 'bingo!'
+    elif diff1 < diff2:
+      print 'getting colder...'
+    elif diff1 > diff2:
+      print 'getting warmer...'
     else:
-      gene.append(codon_amino_acid_map[codon])
-    i += 3
-  else:
-    i += 1
-
-print("num genes:", len(genes))
-for gene in genes:
-  print(gene)
+      print 'same degree'
 
 
+from random import randint
+# hot_or_cold(randint(0, 100))
 
 
 
