@@ -15,7 +15,7 @@ Number of people: 7
 Skip: 1
 answer: 1 3 5 0 4 2 6
 
-Bonus:
+Bonus problem:
 Use the 'Josephus Cipher' to encode and decode messages!
 
 ================================================================================
@@ -31,6 +31,23 @@ Alternate version: Play the game on a 2D grid instead of a 1d number line.
 
 Bonus: design an algorithm that find the secret square in at most ~2*lg N
 guesses. Can you do it in lgN?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================================================================================
 
 """
 
@@ -67,7 +84,6 @@ print decoded
 
 
 def hot_or_cold(n):
-
   guess1 = guess2 = int(raw_input("guess: "))
   if guess1 == n:
     print 'bingo!'
