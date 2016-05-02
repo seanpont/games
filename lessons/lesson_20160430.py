@@ -104,7 +104,7 @@ def hot_or_cold(n):
 
 
 from random import randint
-# hot_or_cold(randint(0, 100))
+hot_or_cold(randint(0, 100))
 
 
 
