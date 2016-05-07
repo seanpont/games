@@ -8,7 +8,7 @@ from math import log, ceil
 
 
 class HotColdGame:
-  def __init__(self, n, answer=None):
+  def __init__(self, n=100, answer=None):
     assert n > 0, "n must be a positive integer"
     self.min, self.max = 1, n
     self.answer = answer if answer else randint(1, n)
@@ -35,10 +35,6 @@ def random_solver(game):
   return game.guesses
 
 
-num_guesses = [random_solver(HotColdGame(100)) for i in range(1, 101)]
-print 'average guesses: ', sum(num_guesses) / float(len(num_guesses))
-
-
 def step_solver(game):
   assert isinstance(game, HotColdGame), 'solver takes a new HotColdGame'
   guess = (game.min + game.max) / 2
@@ -55,16 +51,15 @@ def step_solver(game):
 def bisection_solver(game):
   assert isinstance(game, HotColdGame), 'solver takes a new HotColdGame'
   lo, hi, solved = game.min, game.max, False
-  solved, temp = game.guess(lo)
-  g2 = game.last_guess
+  g1, g2 = lo, hi
+  solved, temp = game.guess(g1)
   if not solved:
-    solved, temp = game.guess(hi)
+    solved, temp = game.guess(g2)
   while not solved and game.guesses < 30:
-    g1, g2 = g2, game.last_guess
     mid = (lo + hi) / 2
     if temp == 'same':
       lo = hi = mid
-    elif temp == 'colder' and g1 < mid or temp == 'hotter' and g2 < mid:
+    elif temp == 'colder' and g1 < g2 or temp == 'hotter' and g1 > g2:
       lo, hi = lo, mid
     else:
       lo, hi = mid, hi
@@ -77,9 +72,15 @@ def bisection_solver(game):
     else:
       guess = 2 * mid - g2
     solved, temp = game.guess(guess)
+    g1, g2 = g2, guess
   assert solved, "Unable to solve: %s" % game.answer
   return game.guesses
 
+
+# bisection_solver(HotColdGame(100, 1))
+
+for a in range(1, 10001):
+  bisection_solver(HotColdGame(10000, a))
 
 # bisection_solver(HotColdGame(10000, 5001))
 # for n in [10, 100, 1000, 10000, 100000]:
