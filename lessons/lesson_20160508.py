@@ -35,6 +35,9 @@ def random_solver(game):
   return game.guesses
 
 
+print 'random guesser took', random_solver(HotColdGame())
+
+
 def step_solver(game):
   assert isinstance(game, HotColdGame), 'solver takes a new HotColdGame'
   guess = (game.min + game.max) / 2
@@ -52,10 +55,12 @@ def bisection_solver(game):
   assert isinstance(game, HotColdGame), 'solver takes a new HotColdGame'
   lo, hi, solved = game.min, game.max, False
   g1, g2 = lo, hi
+  print 'guess:', g1
   solved, temp = game.guess(g1)
   if not solved:
+    print 'guess', g2
     solved, temp = game.guess(g2)
-  while not solved and game.guesses < 30:
+  while not solved and game.guesses < 40:
     mid = (lo + hi) / 2
     if temp == 'same':
       lo = hi = mid
@@ -71,21 +76,42 @@ def bisection_solver(game):
       guess = lo
     else:
       guess = 2 * mid - g2
+    print 'guess:', guess
     solved, temp = game.guess(guess)
     g1, g2 = g2, guess
   assert solved, "Unable to solve: %s" % game.answer
   return game.guesses
 
+game = HotColdGame(1000000000)
+print 'answer:', game.answer
+print 'took', bisection_solver(game), 'guesses'
 
-# bisection_solver(HotColdGame(100, 1))
-
-for a in range(1, 10001):
-  bisection_solver(HotColdGame(10000, a))
-
+# for a in range(1, 10001):
+#   bisection_solver(HotColdGame(10000, a))
+#
 # bisection_solver(HotColdGame(10000, 5001))
 # for n in [10, 100, 1000, 10000, 100000]:
 #   a = [bisection_solver(HotColdGame(n, ans)) for ans in range(1, n + 1)]
 #   print n, min(a), max(a), sum(a) / float(len(a)), ceil(log(n, 2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
