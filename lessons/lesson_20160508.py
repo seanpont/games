@@ -1,5 +1,5 @@
 """
-We will design an algorith and build a solver for the
+We will design an algorithm and build a solver for the
 game 'hot or cold'
 
 """
@@ -93,26 +93,4 @@ print 'took', bisection_solver(game), 'guesses'
 # for n in [10, 100, 1000, 10000, 100000]:
 #   a = [bisection_solver(HotColdGame(n, ans)) for ans in range(1, n + 1)]
 #   print n, min(a), max(a), sum(a) / float(len(a)), ceil(log(n, 2))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
