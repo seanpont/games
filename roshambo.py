@@ -5,28 +5,33 @@ LOSER_WINNER = {'r': 'p', 'p': 's', 's': 'r'}
 WINNER_LOSER = {'r': 's', 's': 'p', 'p': 'r'}
 
 class RoShamBobot:
-  def __init__(self, seq_length=3):
+  def __init__(self, seq_length=3, track_self=False):
     self.n = seq_length
     self.play_count = {}
     self.history = ''
+    self.track_self = track_self
 
   def play(self):
     r = random.choice('rps')
     if len(self.history) < self.n:
+      print 'random guess'
       return r
     last_m = self.history[-self.n + 1:]
     keys = [k for k in self.play_count.keys() if k.startswith(last_m)]
     if not keys:
+      print 'insufficient data, random'
       return r
     max_key = max(keys, key=lambda x: self.play_count[x])
+    print 'player likely will guess %s' % max_key[-1]
     return LOSER_WINNER[max_key[-1]]
 
-  def last_play(self, rps):
-    self.history += rps
+  def last_play(self, rps, robot_rps):
+    self.history += robot_rps + rps if self.track_self else rps
     if len(self.history) < self.n:
       return
     last_n = self.history[-self.n:]
     self.play_count[last_n] = self.play_count.get(last_n, 0) + 1
+    print self.play_count
 
   def reset(self):
     self.play_count = {}
@@ -116,7 +121,7 @@ class App:
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=self.root.quit)
 
-    self.robot = RoShamBobot(4)
+    self.robot = RoShamBobot()
     self.game = RoShamBoGame()
     self.new_game()
 
@@ -143,7 +148,7 @@ class App:
       self.robot_rps_label.configure(bg='green')
     self.human_score_text.set('Human: %s' % self.game.p1_score)
     self.robot_score_text.set('Robot: %s' % self.game.p2_score)
-    self.robot.last_play(rps)
+    self.robot.last_play(rps, robot_rps)
 
   def new_game(self):
     print 'new game'
