@@ -205,7 +205,7 @@ class Blackjack(object):
         for i, player in enumerate(self.players):
             self.render("%s's turn" % player.name)
             while not player.hand.bust():
-                play = player.quiz(dealer_card)
+                play = player.play(dealer_card)
                 if play in (1, 2):  # hit or double down
                     card = deck.get_card()
                     player.hand.add_card(card)
@@ -217,7 +217,7 @@ class Blackjack(object):
 
         # Service Dealer
         self.dealer.deal(deck.get_card())
-        while not self.dealer.hand.bust() and self.dealer.quiz(None):
+        while not self.dealer.hand.bust() and self.dealer.play(None):
             self.dealer.hand.add_card(deck.get_card())
 
         self.render("Dealer has played")

@@ -17,6 +17,24 @@ Text Adventure Game!
 
 Case Study: Union Find
 
+Define class UnionFind:
+  initializer: should take the size
+  functions:
+    union(p, q): adds an edge between p and q
+    connected(p, q): returns true if p and q are connected
+  later, we can develop two additional functions:
+    component(p): returns an integer identifier for p's component (ie the set)
+    component_count(): return the number of components
+
+Solving this problem means thinking about the data structure and the algorithm
+we will apply to it. They are interconnected. For each algorithm that we
+develop, we will analyze its space and time efficiency.
+
+Notes:
+  quick-find: array of size N, connected if same component
+  quick-union:
+
+
 
 """
 
@@ -35,32 +53,37 @@ def generate_network(rows, cols, edges):
   return conns
 
 
-def draw_complex_network(rows, cols, network):
-  master = Tk()
+def pos(x):
+  return x * 10 + 10
 
-  def pos(x):
-    return x * 10 + 10
 
-  w = Canvas(master, width=pos(rows), height=pos(cols))
-  w.pack()
+def draw_network(canvas, rows, cols, network):
+  print 'draw network'
+  canvas.delete("all")
 
   for row in range(rows):
     for col in range(cols):
       y, x = pos(row), pos(col)
-      w.create_oval(x - 2, y - 2, x + 2, y + 2, fill='black')
+      canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill='black')
 
   for edge in network:
     y1, x1, y2, x2 = edge
-    w.create_line(pos(x1), pos(y1), pos(x2), pos(y2))
+    canvas.create_line(pos(x1), pos(y1), pos(x2), pos(y2))
 
+
+def show_network(rows, cols):
+  master = Tk()
+  canvas = Canvas(master, width=pos(rows), height=pos(cols))
+  canvas.pack()
+
+  def redraw():
+    draw_network(canvas, rows, cols, generate_network(rows, cols, rows * cols))
+
+  master.bind("r", lambda _: redraw())
+  redraw()
   mainloop()
 
 
 if __name__ == '__main__':
-  rows, cols, edges = 8, 8, 8 ** 2
-  network = generate_network(rows, cols, edges)
-  draw_complex_network(rows, cols, network)
-
-  rows, cols, edges = 64, 64, 64**2
-  network = generate_network(rows, cols, edges)
-  draw_complex_network(rows, cols, network)
+  show_network(8, 8)
+  show_network(64, 64)
