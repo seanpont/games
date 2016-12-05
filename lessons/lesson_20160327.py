@@ -1,8 +1,4 @@
 """
-Finish Flashcards
-
-If there is time:
-
 Introduction to Graph Theory
 
 Can be used to model maps, web content, circuits, schedules, friends...

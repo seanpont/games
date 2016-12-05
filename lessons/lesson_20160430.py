@@ -32,21 +32,6 @@ Alternate version: Play the game on a 2D grid instead of a 1d number line.
 Bonus: design an algorithm that find the secret square in at most ~2*lg N
 guesses. Can you do it in lgN?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ================================================================================
 
 """

@@ -32,7 +32,7 @@ def solver(target, xs):
           return '%s(%s, %s) %s' % (op.__name__, a, b, ans)
 
 
-def twentyFour(a, b, c, d):
+def twenty_four(a, b, c, d):
   """
   (int, int, int, int) -> str
   returns string with 24 solution
@@ -41,23 +41,23 @@ def twentyFour(a, b, c, d):
   import itertools
   operations = [' add ', ' sub ', ' mult ', ' div ',
                 ' reverseSub ', ' reverseDiv ']
-  numPermutations = list(itertools.permutations([a, b, c, d], 4))
-  operationPermutations = list(itertools.product(operations, repeat=3))
-  for numList in numPermutations:
+  num_permutations = list(itertools.permutations([a, b, c, d], 4))
+  operation_permutations = list(itertools.product(operations, repeat=3))
+  for numList in num_permutations:
     "check for solutions of form ((x#y)#z)#t"
-    for opList in operationPermutations:
-      result = operateOn(numList[0], numList[1], opList[0])
-      result = operateOn(result, numList[2], opList[1])
-      result = operateOn(result, numList[3], opList[2])
+    for opList in operation_permutations:
+      result = operate_on(numList[0], numList[1], opList[0])
+      result = operate_on(result, numList[2], opList[1])
+      result = operate_on(result, numList[3], opList[2])
       if result == 24:
         return "((" + str(numList[0]) + opList[0] + str(numList[1]) \
                + ")" + opList[1] + str(numList[2]) + ")" + opList[2] \
                + str(numList[3])
     "check for solutions of form (x#y)#(z#t)"
-    for opList in operationPermutations:
-      result1 = operateOn(numList[0], numList[1], opList[0])
-      result2 = operateOn(numList[2], numList[3], opList[1])
-      result = operateOn(result1, result2, opList[2])
+    for opList in operation_permutations:
+      result1 = operate_on(numList[0], numList[1], opList[0])
+      result2 = operate_on(numList[2], numList[3], opList[1])
+      result = operate_on(result1, result2, opList[2])
       if result == 24:
         return "(" + str(numList[0]) + opList[0] + str(numList[1]) \
                + ")" + opList[2] + "(" + str(numList[2]) + opList[1] \
@@ -65,7 +65,7 @@ def twentyFour(a, b, c, d):
   return None
 
 
-def operateOn(x, y, operation):
+def operate_on(x, y, operation):
   """
   (int, int, str) -> int
   operation is either add, sub, mult, or div
@@ -96,19 +96,19 @@ if __name__ == '__main__':
   from random import choice
   from time import time
 
-  print len(list(combos(range(1, 10), 4)))
-
-  count, t = 0, time()
-  for a, b, c, d in combos(range(1, 10), 4):
-    if solver(24, [a, b, c, d]):
-      count += 1
-  print count, time() - t
-
-  count, t = 0, time()
-  for a, b, c, d in combos(range(1, 10), 4):
-    if twentyFour(a, b, c, d):
-      count += 1
-  print count, time() - t
+  # print len(list(combos(range(1, 10), 4)))
+  #
+  # count, t = 0, time()
+  # for a, b, c, d in combos(range(1, 10), 4):
+  #   if solver(24, [a, b, c, d]):
+  #     count += 1
+  # print count, time() - t
+  #
+  # count, t = 0, time()
+  # for a, b, c, d in combos(range(1, 10), 4):
+  #   if twenty_four(a, b, c, d):
+  #     count += 1
+  # print count, time() - t
 
   while True:
     question = [choice(range(1, 10)) for _ in range(4)]
@@ -117,4 +117,4 @@ if __name__ == '__main__':
       print '\n', question
       raw_input('')
       print answer
-      print twentyFour(*question)
+      # print twenty_four(*question)
