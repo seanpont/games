@@ -12,13 +12,12 @@ def find_index_where(arr, condition):
   return -1
 
 
-class bcolors:
-  BLUE = '\033[94m'
-  GREEN = '\033[92m'
-  YELLOW = '\033[93m'
-  RED = '\033[91m'
-  ENDC = '\033[0m'
-  UNDERLINE = '\033[4m'
+BLUE = '\033[94m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+RED = '\033[91m'
+ENDC = '\033[0m'
+UNDERLINE = '\033[4m'
 
 
 class Game(object):
@@ -27,8 +26,8 @@ class Game(object):
     self.goal = goal
     self.board = [[' '] * size for _ in xrange(size)]
     self.p1, self.p2 = p1_token, p2_token
-    self.p1 = bcolors.GREEN + self.p1 + bcolors.ENDC
-    self.p2 = bcolors.BLUE + self.p2 + bcolors.ENDC
+    self.p1 = GREEN + self.p1 + ENDC
+    self.p2 = BLUE + self.p2 + ENDC
     self.turn = self.p1
     self.winner = None
 
@@ -114,19 +113,18 @@ def game_console():
   print "Player %s wins!" % game.winner
 
 
-def game_host():
-  size = int(raw_input("Board size: "))
-  goal = int(raw_input("How many in a row to win? "))
-  p1 = raw_input("Player 1 token: ").strip()[0]
-  port = int(raw_input("Enter port number: ").strip())
+def game_host(size, goal, p1, port):
 
-  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  server_address = (socket.gethostbyname(socket.gethostname()), port)
-  print 'starting up on %s port %s' % server_address
-  sock.bind(server_address)
-  sock.listen(5)
-  print 'waiting for a connection'
-  connection, client_address = sock.accept()
+  # create an INET, STREAMing socket
+  serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  # bind the socket to a public host and a well-known port
+  serversocket.bind((socket.gethostname(), port))
+  # become a server socket
+  # queue up as many as 5 connect requests before refusing outside connections
+  serversocket.listen(5)
+
+  print 'waiting for a connection...'
+  connection, client_address = serversocket.accept()
   try:
     p2 = connection.recv(256).strip()
     print 'p2 token: ', p2
@@ -145,11 +143,7 @@ def game_host():
     connection.close()
 
 
-def game_client():
-  ip_addr = raw_input("Enter host ip: ").strip()
-  port = int(raw_input("Enter host port: ").strip())
-  p2 = raw_input("Enter your token: ").strip()[0]
-
+def game_client(ip_addr, port, p2):
   connection = socket.create_connection((ip_addr, port))
   try:
     connection.sendall(p2)
@@ -171,7 +165,7 @@ def game_client():
     connection.close()
 
 
-if __name__ == '__main__':
+def main_menu():
   print("""
   Welcome to Connect 5!
   1) Host game over LAN
@@ -180,12 +174,22 @@ if __name__ == '__main__':
   """)
   game_type = raw_input("Choice: ")
   if game_type == '1':
-    game_host()
+    size = int(raw_input("Board size: "))
+    goal = int(raw_input("How many in a row to win? "))
+    p1 = raw_input("Player 1 token: ").strip()[0]
+    port = int(raw_input("Enter port number: ").strip())
+    game_host(size, goal, p1, port)
   elif game_type == '2':
-    game_client()
+    ip_addr = raw_input("Enter host ip: ").strip()
+    port = int(raw_input("Enter host port: ").strip())
+    p2 = raw_input("Enter your token: ").strip()[0]
+    game_client(ip_addr, port, p2)
   else:
     game_console()
 
+
+if __name__ == '__main__':
+  main_menu()
 
 
 
