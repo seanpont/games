@@ -19,6 +19,7 @@ RED = '\033[91m'
 ENDC = '\033[0m'
 UNDERLINE = '\033[4m'
 
+PORT = 50007
 
 class Game(object):
   def __init__(self, size, goal, p1_token, p2_token):
@@ -97,9 +98,7 @@ class Game(object):
     return False
 
 
-def game_console():
-  size = int(raw_input("Board size: "))
-  goal = int(raw_input("How many in a row to win? "))
+def game_console(size, goal):
   p1 = raw_input("Player 1 token: ").strip()[0]
   p2 = raw_input("Player 2 token: ").strip()[0]
 
@@ -113,15 +112,16 @@ def game_console():
   print "Player %s wins!" % game.winner
 
 
-def game_host(size, goal, p1, port):
-
+def game_host(size, goal, p1):
+  import os
+  os.system('ifconfig')
   # create an INET, STREAMing socket
   serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   # bind the socket to a public host and a well-known port
-  serversocket.bind((socket.gethostname(), port))
+  serversocket.bind(('', PORT))
   # become a server socket
   # queue up as many as 5 connect requests before refusing outside connections
-  serversocket.listen(5)
+  serversocket.listen(1)
 
   print 'waiting for a connection...'
   connection, client_address = serversocket.accept()
@@ -143,8 +143,8 @@ def game_host(size, goal, p1, port):
     connection.close()
 
 
-def game_client(ip_addr, port, p2):
-  connection = socket.create_connection((ip_addr, port))
+def game_client(ip_addr, p2):
+  connection = socket.create_connection((ip_addr, PORT))
   try:
     connection.sendall(p2)
     data = connection.recv(256).strip()
@@ -173,19 +173,25 @@ def main_menu():
   3) Play Connect 5! (default)
   """)
   game_type = raw_input("Choice: ")
+  size, goal = 11, 5
+
+  if game_type == '1' or game_type == '3':
+    size_str = raw_input("Board size (11): ")
+    if size_str.isdigit():
+      size = int(size_str)
+    goal_str = raw_input("How many in a row to win (5): ")
+    if goal_str.isdigit():
+      goal = int(goal_str)
+
   if game_type == '1':
-    size = int(raw_input("Board size: "))
-    goal = int(raw_input("How many in a row to win? "))
     p1 = raw_input("Player 1 token: ").strip()[0]
-    port = int(raw_input("Enter port number: ").strip())
-    game_host(size, goal, p1, port)
+    game_host(size, goal, p1)
   elif game_type == '2':
     ip_addr = raw_input("Enter host ip: ").strip()
-    port = int(raw_input("Enter host port: ").strip())
     p2 = raw_input("Enter your token: ").strip()[0]
-    game_client(ip_addr, port, p2)
+    game_client(ip_addr, p2)
   else:
-    game_console()
+    game_console(size, goal)
 
 
 if __name__ == '__main__':
